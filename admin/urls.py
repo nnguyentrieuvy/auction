@@ -12,6 +12,9 @@ urlpatterns = [
     path('admin/register', views.register),
     path('admin/category', views.category),
     path('admin/attribute_groups', views.attribute_groups),
-    # path('admin/attribute_groups_add_form', views.attribute_groups_add_form),
+    path('admin/attribute_groups/delete=<int:id>', views.delete_attribute_groups),
+    path('admin/attribute_groups/update=<int:id>', views.update_attribute_groups),
     path('admin/attributes', views.attributes),
+    path('admin/attributes/delete=<int:id>', views.delete_attributes),
+    path('admin/attributes/update=<int:id>', views.update_attributes),
     ]

@@ -199,15 +199,11 @@ def changepwd(request):
             return JsonResponse({"error": ''}, status=400)
     return redirect('/admin')
 
-# def attribute_groups_add_form(request):
-#     form = CategoryForm
-#     # form.cleaned_data['category_parent'] = 'hhhh'
-#     return render(request, 'admin/attribute_groups_add_form.html', {'form': form})
 
 
 @csrf_exempt
 def attribute_groups(request):
-    message = ''
+    message = 'attribute_groups'
     list = models.attribute_groups.objects
     form = AttributeGroupsForm
     if request.is_ajax and request.method == "POST":
@@ -215,35 +211,94 @@ def attribute_groups(request):
         name = request.POST.get('name')
         if not models.attribute_groups.objects(name=name):
             if form.is_valid():
-                form.save()
+                message = ''
+                last_doc = models.attribute_groups.objects.latest('id')
+                attr = form.save(commit=False)
+                attr.id = int(last_doc.id) + 1
+                attr.save()
+                # form.save()
+
         else:
             message = 'Thuộc tính đã tồn tại!'
         return JsonResponse({"message": message}, status=200)
     return render(request, 'admin/attribute_groups.html', {'attribute_groups': list, 'form': form})
 
+
 @csrf_exempt
 def attributes(request):
-    message = ''
+    message = 'attributes'
     list = models.attributes.objects
     form = AttributesForm
     if request.is_ajax and request.method == "POST":
-        id = request.POST.get('id')
         name = request.POST.get('name')
         attribute_groups_id = request.POST.get('attribute_groups_id')
-        print(id + name)
         form = AttributesForm(request.POST)
         print(request.POST)
         if not models.attributes.objects(name=name):
-            # attr = models.attributes(id=1, name='hhhh', attribute_groups_id=['9'])
-            # attr.save()
-            # if form.is_valid():
-            #     form.save()
+            if form.is_valid():
+                message = ''
+                last_doc = models.attributes.objects.latest('id')
                 #atrg is refe..field in model so it just saves _id of corresponding attribute_groups documenent.
                 atrg = models.attribute_groups(id=attribute_groups_id)
                 attg = form.save(commit=False)
+                attg.id = int(last_doc.id) + 1
                 attg.attribute_groups_id = atrg
                 attg.save()
         else:
             message = 'Thuộc tính đã tồn tại!'
         return JsonResponse({"message": message}, status=200)
     return render(request, 'admin/attributes.html', {'attributes': list, 'form': form})
+
+
+@csrf_exempt
+def delete_attribute_groups(request, id):
+    list = models.attribute_groups.objects
+    form = AttributeGroupsForm
+    if request.is_ajax and request.method == "POST":
+        attr_grp = models.attribute_groups.objects(id=id)
+        attr_grp.delete()
+        return JsonResponse({"message": 'delete_atr_g'}, status=200)
+    return render(request, 'admin/attribute_groups.html', {'attribute_groups': list, 'form': form})
+
+@csrf_exempt
+def delete_attributes(request, id):
+    print(id)
+    list = models.attributes.objects
+    form = AttributesForm
+    if request.is_ajax and request.method == "POST":
+        attr = models.attributes.objects(id=id)
+        attr.delete()
+        return JsonResponse({"message": 'delete_attributes'}, status=200)
+    return render(request, 'admin/attributes.html', {'attributes': list, 'form': form})
+
+@csrf_exempt
+def update_attribute_groups(request, id):
+    list = models.attribute_groups.objects
+    form = AttributeGroupsForm
+    if request.is_ajax and request.method == "POST":
+        form = AttributeGroupsForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"name": "update_attribute_groups"}, status=200)
+    return render(request, 'admin/attribute_groups.html', {'attribute_groups': list, 'form': form})
+
+@csrf_exempt
+def update_attributes(request, id):
+    message = "update_attributes"
+    list = models.attributes.objects
+    form = AttributesForm
+    if request.is_ajax and request.method == "POST":
+        form = AttributesForm(request.POST)
+        if not models.attributes.objects(name=request.POST['name']):
+            if form.is_valid():
+                message = ''
+                atrg = models.attribute_groups(id=request.POST['attribute_groups_id'])
+                attg = form.save(commit=False)
+                attg.attribute_groups_id = atrg
+                attg.save()
+        else:
+            message = 'Thuộc tính này đã tồn tại!'
+
+        return JsonResponse({"message": message}, status=200)
+    return render(request, 'admin/attributes.html', {'attributes': list, 'form': form})
+
