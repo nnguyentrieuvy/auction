@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from mongoengine import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,13 +76,27 @@ WSGI_APPLICATION = 'daugia.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
+# MONGODBFORMS_FIELDGENERATOR = 'myproject.fieldgenerator.GeneratorClass'
+DATABASES = {
+        'default': {
+            'ENGINE': 'djongo',
+            'NAME': 'auction',
+            'ENFORCE_SCHEMA': False
+        }
+}
+# # MongoDB Databases
+# MONGODB_DATABASES = {
+#     'default': {'name': 'django_mongoengine_test'}
+# }
+from mongoengine import connect
+connect('auction')
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -101,6 +116,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# session van giu sau khi dong trinh duyet
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# SESSION_SAVE_EVERY_REQUEST = True
+
+# SESSION_ENGINE = 'mongoengine.django.sessions'
+# SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/

@@ -1,0 +1,119 @@
+{% extends "admin/base.html" %}
+{% block title %}
+    <title>Trang chủ</title>
+{% endblock %}
+
+{% block breadcome-area %}
+{% endblock %}
+
+{% block content %}
+        <div class="product-status mg-b-15" style="padding-top: 100px;">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="product-status-wrap">
+                            <h4>
+<!--                                <i class="fa fa-pencil" aria-hidden="true"></i>-->
+                                Nhóm thuộc tính</h4>
+                            <div class="add-product">
+                                <a href="#">Thêm</a>
+                            </div>
+                            <div class="asset-inner">
+                                <table id="mytable">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>{{ form.name.label }}</th>
+                                        <th>{{ form.attribute_groups_id.label }}</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                    {% for c in attributes %}
+                                    <tr>
+                                        <td class="id">{{ forloop.counter|add:0 }}</td>
+                                        <td>{{ c.name }}</td>
+                                        <td>{{ c.attribute_groups_id.name }}</td>
+                                        <td>
+                                            <button data-toggle="tooltip" title="Edit" class="pd-setting-ed"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                            <button data-toggle="tooltip" title="Trash" class="pd-setting-ed"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    <form method="post">
+                                    {% csrf_token %}
+                                    <tr>
+                                        <td id="form_id" class="id"> </td>
+                                        <td>{{ form.name }}</td>
+                                        <td id="form_attg" >{{ form.attribute_groups_id }}</td>
+                                        <td>
+                                            <button data-toggle="tooltip" type="submit" title="Thêm" class="pd-setting-ed add-form"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                        </td>
+                                    </tr>
+                                  </form>
+                                </table>
+                            </div>
+<!--                            <div class="custom-pagination">-->
+<!--								<ul class="pagination">-->
+<!--									<li class="page-item"><a class="page-link" href="#">Trước</a></li>-->
+<!--									<li class="page-item"><a class="page-link" href="#">1</a></li>-->
+<!--									<li class="page-item"><a class="page-link" href="#">2</a></li>-->
+<!--									<li class="page-item"><a class="page-link" href="#">3</a></li>-->
+<!--									<li class="page-item"><a class="page-link" href="#">Sau</a></li>-->
+<!--								</ul>-->
+<!--                            </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright-area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="footer-copy-right">
+                            <p>Copyright © 2018. All rights reserved. Template by <a href="https://colorlib.com/wp/templates/">Colorlib</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+{% block javascript %}
+<script>
+    $(document).on('click','.add-form', function someFunction(e){
+       e.preventDefault();
+       var len = $('#mytable tr').length - 2;
+       var $tr = $("#mytable tr:eq("+len+")");
+       var $id = $tr.find(".id");
+       if ($id[0]){
+          var id_nb = parseInt($id.html()) + 1;
+       }
+       else {
+          var id_nb = 1;
+       }
+       var $name = $("#id_name");
+       var $attribute_groups_id = $("#id_attribute_groups_id").find(":selected").val();
+<!--       alert($("#id_attribute_groups_id").find(":selected").text());-->
+       $.ajax({
+               type: 'POST',
+               url: "/admin/attributes",
+               data: {
+                  csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                  id: id_nb,
+                  name: $name.val(),
+                  attribute_groups_id: parseInt($attribute_groups_id)
+               },
+               success: function (response) {
+                  if(response['message'] == '') {
+                       $("#mytable").load("/admin/attributes #mytable");
+                     }
+                  else {
+                     alert(response['message']);
+                  }
+               },
+               error: function (response) {
+                  console.log(response)
+               }
+         });
+     });
+</script>
+{% endblock %}
