@@ -17,11 +17,6 @@ class account(Document):
     auth_email = StringField(max_length=100)
     role = StringField(max_length=100)
 
-class category(Document):
-    id = fields.IntField(primary_key=True)
-    catagory_parent = fields.StringField()
-    name = fields.StringField(max_length=300)
-
 class attribute_groups(Document):
     id = fields.IntField(primary_key=True)
     name = fields.StringField(max_length=300)
@@ -36,3 +31,12 @@ class attributes(Document):
     # attribute_groups_id = fields.IntField(choices=attr_groups_list)
     # atrg is refe..field in model so it just saves _id of corresponding attribute_groups documenent. (see attributes in view)
     attribute_groups_id = fields.ReferenceField('attribute_groups',reverse_delete_rule=CASCADE)
+
+class category(Document):
+    id = fields.IntField(primary_key=True)
+    catagory_parent = fields.IntField()
+    name = fields.StringField(max_length=300)
+    attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE))
+
+
+

@@ -57,19 +57,72 @@ def category(request):
 
             while pr != 0:
                 if pr != 0:
-                    cate = models.category.objects.get(id=pr)
-                    pr = cate.catagory_parent
-                    list1.append(cate.name)
+                    c = models.category.objects.get(id=pr)
+                    pr = c.catagory_parent
+                    list1.append(c.name)
             list1.reverse()
             s = ' > '.join([str(item) for item in list1])
-            list.append(s)
-            # else:
-            #     list.append(cate.name)
+            list.append({'id': cate.id, 'name': s})
 
         return render(request, 'admin/category.html', {'username': user, 'category_list': list})
     else:
         print(request.session.get('auction_account'))
         return redirect('/admin')
+
+
+@csrf_exempt
+def category_edit(request):
+    message = 'Lỗi!'
+    form = CategoryForm
+    form_attribute = AttributesForm
+    list_attrs_id = []
+    if request.is_ajax and request.method == "POST":
+        form = CategoryForm(request.POST)
+        name = request.POST.get('name')
+        catagory_parent = request.POST.get('catagory_parent')
+        attrs_id = request.POST.getlist('attrs_id[]')
+        if not models.category.objects(name=name):
+            if form.is_valid():
+                message = ''
+                cate = form.save(commit=False)
+                if not models.category.objects.latest('id'):
+                    cate.id = 1
+                else:
+                    last_doc = models.category.objects.latest('id')
+                    cate.id = int(last_doc.id) + 1
+
+                # cate.setlist('attributes_id[]', [1, 2])
+                for l in attrs_id:
+                    if l == 'NoneOfAttribute':
+                        message = 'Vui lòng chọn thuộc tính!'
+                        return JsonResponse({"message": message}, status=200)
+
+                    elif l != 'None':
+                       doc = models.attributes.objects(id=int(l)).first()
+                       list_attrs_id.append(doc)
+
+                    else:
+                        doc = models.attributes(id=0, name='')
+                        list_attrs_id.append(doc)
+                        break
+                cate.attributes_id = list_attrs_id
+                cate.save()
+        else:
+            message = 'Thuộc tính đã tồn tại!'
+        return JsonResponse({"message": message}, status=200)
+    return render(request, 'admin/category_edit.html', {'form': form, 'form_attribute':form_attribute})
+
+
+@csrf_exempt
+def category_update(request):
+    form = CategoryForm
+    form_attribute = AttributesForm
+    # if request.is_ajax and request.method == "POST":
+    #     form = AttributeGroupsForm(request.POST)
+    #     if form.is_valid():
+    #         form.save()
+    #         return JsonResponse({"name": "update_attribute_groups"}, status=200)
+    return render(request, 'admin/category_edit.html', {'form': form, 'form_attribute':form_attribute})
 
 def index(request):
     acc = account.objects(role='admin').first()
@@ -143,8 +196,6 @@ def login(request):
                 else:
                     kq = 0
                 return JsonResponse({"kq": kq}, status=200)
-                # return HttpResponseRedirect('/admin/index',status=200)
-                # return render(request, 'admin/index.html', {'form': form})
             else:
                 # some form errors occured.
                 return JsonResponse({"error": form.errors}, status=400)
@@ -200,10 +251,9 @@ def changepwd(request):
     return redirect('/admin')
 
 
-
 @csrf_exempt
 def attribute_groups(request):
-    message = 'attribute_groups'
+    message = 'Lỗi!'
     list = models.attribute_groups.objects
     form = AttributeGroupsForm
     if request.is_ajax and request.method == "POST":
@@ -212,12 +262,13 @@ def attribute_groups(request):
         if not models.attribute_groups.objects(name=name):
             if form.is_valid():
                 message = ''
-                last_doc = models.attribute_groups.objects.latest('id')
                 attr = form.save(commit=False)
-                attr.id = int(last_doc.id) + 1
+                if not models.attribute_groups.objects.latest('id'):
+                    attr.id = 1
+                else:
+                    last_doc = models.attribute_groups.objects.latest('id')
+                    attr.id = int(last_doc.id) + 1
                 attr.save()
-                # form.save()
-
         else:
             message = 'Thuộc tính đã tồn tại!'
         return JsonResponse({"message": message}, status=200)
@@ -226,7 +277,7 @@ def attribute_groups(request):
 
 @csrf_exempt
 def attributes(request):
-    message = 'attributes'
+    message = 'Lỗi!'
     list = models.attributes.objects
     form = AttributesForm
     if request.is_ajax and request.method == "POST":
@@ -241,8 +292,11 @@ def attributes(request):
                 #atrg is refe..field in model so it just saves _id of corresponding attribute_groups documenent.
                 atrg = models.attribute_groups(id=attribute_groups_id)
                 attg = form.save(commit=False)
-                attg.id = int(last_doc.id) + 1
                 attg.attribute_groups_id = atrg
+                if not last_doc:
+                    attg.id = 1
+                else:
+                    attg.id = int(last_doc.id) + 1
                 attg.save()
         else:
             message = 'Thuộc tính đã tồn tại!'
@@ -272,6 +326,22 @@ def delete_attributes(request, id):
     return render(request, 'admin/attributes.html', {'attributes': list, 'form': form})
 
 @csrf_exempt
+def delete_category(request, id):
+    print(id)
+    form = CategoryForm
+    form_attribute = AttributesForm
+    if request.is_ajax and request.method == "POST":
+        attr = models.category.objects(id=id).first()
+        doc = models.category.objects(catagory_parent=id).first()
+        if doc:
+           doc.delete()
+
+        attr.delete()
+        return JsonResponse({"message": 'delete_category'}, status=200)
+    return render(request, 'admin/category_edit.html', {'form': form, 'form_attribute': form_attribute})
+
+
+@csrf_exempt
 def update_attribute_groups(request, id):
     list = models.attribute_groups.objects
     form = AttributeGroupsForm
@@ -284,7 +354,7 @@ def update_attribute_groups(request, id):
 
 @csrf_exempt
 def update_attributes(request, id):
-    message = "update_attributes"
+    message = "Lỗi!"
     list = models.attributes.objects
     form = AttributesForm
     if request.is_ajax and request.method == "POST":
@@ -301,4 +371,14 @@ def update_attributes(request, id):
 
         return JsonResponse({"message": message}, status=200)
     return render(request, 'admin/attributes.html', {'attributes': list, 'form': form})
+
+@csrf_exempt
+def attributes_attrgroups(request):
+    if request.is_ajax and request.method == "POST":
+        id_attr = request.POST.get('id_attr')
+        print(id_attr)
+        doc = models.attributes.objects(id=int(id_attr)).first()
+        return JsonResponse({"message": doc.attribute_groups_id.id}, status=200)
+    return JsonResponse({"message": 'Lỗi!'}, status=400)
+
 
