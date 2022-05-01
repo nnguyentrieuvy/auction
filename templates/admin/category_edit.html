@@ -18,6 +18,7 @@
                                 <li><a href="#reviews"> Thuộc tính </a></li>
 <!--                                <li><a href="#INFORMATION">Social Information</a></li>-->
                             </ul>
+                            {% block 'bl' %}
                             <div id="myTabContent" class="tab-content custom-product-edit">
                                 <div class="product-tab-list tab-pane fade active in" id="description">
                                     <div class="row">
@@ -88,7 +89,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row attr-form">
+                                    <div class="row attr-form" id="attr-form">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="review-content-section">
                                                 <div class="row">
@@ -142,6 +143,7 @@
                                     </div>
                                 </div>
                             </div>
+                            {% endblock %}
                         </div>
                     </div>
                 </div>
@@ -170,7 +172,8 @@
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 
-    <script>
+{% block save-btn %}
+<script>
      $(document).on('click','.save-attr-btn', function someFunction(e){
        e.preventDefault();
        values = [];
@@ -209,37 +212,39 @@
        });
      });
     </script>
- <script>
+{% endblock %}
+<script>
      $(document).on('click','.add-attr-btn', function someFunction(e){
      var select = document.getElementsByClassName("form-control tt");
-      if (select[select.length - 1].value == 'None') {
-         alert('Vui lòng chọn thuộc tính!');
-      }
-      else {
-         node = document.getElementsByClassName("attr-form")[0];
-         clone = node.cloneNode(true);
-         document.getElementById("reviews").appendChild(clone);
-      }
+     node = document.getElementsByClassName("attr-form")[0];
+     clone = node.cloneNode(true);
+     document.getElementById("reviews").appendChild(clone);
+<!--      if (select[select.length - 1].value == 'None') {-->
+<!--         alert('Vui lòng chọn thuộc tính!');-->
+<!--      }-->
+<!--      else {-->
+<!--         document.getElementById("reviews").appendChild(clone);-->
+<!--      }-->
      });
  </script>
 <script>
     $(document).ready(function(){
 
   // Initialize select2
-  $("#id_attributes_id").prepend($('<option>', {
+  $(".tt").select2();
+  $(".tt").prepend($('<option>', {
     value: 'None',
     text: '-----None-----'
   }));
 
-  $("#id_attribute_groups_id").prepend($('<option>', {
+  $(".t").prepend($('<option>', {
     value: 'None',
     text: '-----None-----'
   }));
 
-  $("#id_attributes_id").val('None');
-  $("#id_attribute_groups_id").val('None');
-  $("#id_attributes").select2();
-  $("#id_attribute_groups_id").attr('disabled', 'disabled');
+  $(".tt").val('None');
+  $(".t").val('None');
+  $(".t").attr('disabled', 'disabled');
 
 });
 </script>

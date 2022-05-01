@@ -10,12 +10,15 @@ class auction_account(Document):
 
 
 class account(Document):
-    account = StringField(max_length=100)
-    password = StringField(max_length=100)
-    auth_password = StringField(max_length=100)
-    email = StringField(max_length=100)
-    auth_email = StringField(max_length=100)
-    role = StringField(max_length=100)
+    account = fields.StringField(max_length=100)
+    password = fields.StringField(max_length=100)
+    email = fields.StringField(max_length=100)
+    address = fields.StringField(max_length=100)
+    city = fields.StringField(max_length=100)
+    district = fields.StringField(max_length=100)
+    role = fields.StringField(max_length=100)
+    is_verify = fields.BooleanField(default=False)
+    token = fields.StringField(default=None)
 
 class attribute_groups(Document):
     id = fields.IntField(primary_key=True)

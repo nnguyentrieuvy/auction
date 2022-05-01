@@ -123,6 +123,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # SESSION_ENGINE = 'mongoengine.django.sessions'
 # SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# ben duoi la mail tu tao
+EMAIL_HOST_USER = 'django.projects.test@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_PASSWORD = 'djangotestprj'
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
