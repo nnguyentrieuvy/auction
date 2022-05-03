@@ -13,14 +13,12 @@ class SignupForm(DocumentForm):
                                  widget=forms.PasswordInput(attrs={'placeholder': '****',
                                                                    'title': "Vui xác nhận mật khẩu"}))
    address = forms.CharField(label='Địa chỉ', max_length=100)
-   city = forms.ChoiceField(label='Tỉnh/ Thành phố')
-   district = forms.ChoiceField(label='Quận/ Huyện')
+   city = forms.CharField(label='Tỉnh/ Thành phố', required=False, widget=forms.Select(choices=[]))
+   district = forms.CharField(label='Quận/ Huyện', required=False, widget=forms.Select(choices=[]))
    email = forms.CharField(max_length=100)
 
    def __init__(self, *args, **kwargs):
       super(SignupForm, self).__init__(*args, **kwargs)
-      self.fields['city'].widget.attrs.update({'name': 'calc_shipping_provinces'})
-      self.fields['district'].widget.attrs.update({'name': 'calc_shipping_district'})
       for visible in self.visible_fields():
          visible.field.widget.attrs['class'] = 'form-control'
 

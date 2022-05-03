@@ -1,0 +1,212 @@
+{% extends "website/base.html" %}
+{% load static %}
+{% block title %}
+    <title>Thuộc tính</title>
+{% endblock %}
+
+{% block breadcome-area %}
+{% endblock %}
+
+{% block content %}
+        <div class="single-pro-review-area mt-t-30 mg-b-15" style="padding-top: 100px;">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="product-payment-inner-st">
+                            <ul id="myTabedu1" class="tab-review-design">
+                                <li class="active"><a href="#description"> Thông tin cá nhân </a></li>
+                            </ul>
+                            <div id="myTabContent" class="tab-content custom-product-edit">
+                                <div class="product-tab-list tab-pane fade active in" id="description">
+                                    <div class="row">
+                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                            <div class="review-content-section">
+                                                <div id="dropzone1" class="pro-ad">
+                                                    <form action="/upload" class="dropzone dropzone-custom needsclick add-professors" id="demo1-upload">
+                                                        <div class="row">
+                                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                                <div class="form-group alert-up-pd">
+                                                                    <div class="dz-message needsclick download-custom">
+                                                                        <i class="fa fa-download edudropnone" aria-hidden="true"></i>
+                                                                        <h2 class="edudropnone">Drop image here or click to upload.</h2>
+<!--                                                                        <p class="edudropnone"><span class="note needsclick">(This is just a demo dropzone. Selected image is <strong>not</strong> actually uploaded.)</span>-->
+<!--                                                                        </p>-->
+                                                                        <input name="imageico" class="hd-pro-img" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    {{ form.account }}
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    {{ form.email }}
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    {{ form.phone }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+<!--                                                                <div class="form-group">-->
+<!--                                                                    <select name="gender" class="form-control">-->
+<!--																		<option value="none" selected="" disabled="">Giới tính</option>-->
+<!--																		<option value="0">Nam</option>-->
+<!--																		<option value="1">Nữ</option>-->
+<!--																	</select>-->
+<!--                                                                </div>-->
+                                                                <div class="form-group">
+                                                                    {{ form.address }}
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    {{ form.city }}
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    {{ form.district }}
+                                                                </div>
+                                                                <input class="billing_address_2" id="usr" type="hidden" value="{{ u|safe }}">
+                                                                <input class="billing_address_1" name="" type="hidden" value="">
+                                                                <input class="billing_address_2" name="" type="hidden" value="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                <div class="payment-adress">
+                                                                    <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright-area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="footer-copy-right">
+                            <p>Copyright © 2018. All rights reserved. Template by <a href="https://colorlib.com/wp/templates/">Colorlib</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+
+{% block javascript %}
+<!-- scrollUp JS
+		============================================ -->
+    <script src="{% static 'admin/js/dropzone/dropzone.js' %}"></script>
+
+<!-- dictrict
+		============================================ -->
+    <script src="{% static 'admin/js/district.min.js' %}"></script>
+
+<script>
+var dict = [];
+$(document).ready(function(){
+    var usr = {{ user|safe }};
+    dict.push(usr);
+    $("#id_account").val(dict[0]['_id']);
+    $("#id_email").val(dict[0]['email']);
+    $("#id_address").val(dict[0]['address']);
+    $("#id_city").val(dict[0]['city']);
+    localStorage.setItem('address_1_saved', dict[0]['city']);
+    $("#id_district").append($('<option selected="selected"></option>').val(dict[0]['district']).html(dict[0]['district']));
+
+
+
+<!--   var user = $("#usr").val();-->
+<!--   j = JSON.parse(user.replace('\\"','\''));-->
+<!--   dict.push(usr);-->
+<!--   $("#id_account").val(dict[0]['username']);-->
+<!--   $("#id_email").val(dict[0]['email']);-->
+<!--   u = {{ user|safe }};-->
+<!--   j = JSON.parse("'{{ u }}'".replace('\\"','\''));-->
+<!--   alert(dict[0]['_id']);-->
+});
+</script>
+<script>
+$(document).ready(function(){
+<!--    localStorage.setItem('district', '');-->
+});
+</script>
+<script>
+//<![CDATA[
+if (address_2 = localStorage.getItem('address_2_saved')) {
+  $('select[name="calc_shipping_district"] option').each(function() {
+    if ($(this).text() == address_2) {
+      $(this).attr('selected', '');
+    }
+  })
+  $('input.billing_address_2').attr('value', address_2);
+}
+if (district = localStorage.getItem('district')) {
+  $('select[name="district"]').html(district);
+  $('select[name="district"]').on('change', function() {
+    var target = $(this).children('option:selected');
+    target.attr('selected', '');
+    $('select[name="district"] option').not(target).removeAttr('selected');
+    address_2 = target.text();
+    $('input.billing_address_2').attr('value', address_2);
+    district = $('select[name="district"]').html();
+    localStorage.setItem('district', district);
+    localStorage.setItem('address_2_saved', address_2);
+  })
+}
+$('select[name="city"]').each(function() {
+  var $this = $(this),
+    stc = '';
+  c.forEach(function(i, e) {
+    e += +1;
+    stc += '<option value="' + i + '">' + i + '</option>';
+    $this.html('<option value="">Tỉnh / Thành phố</option>' + stc);
+    if (address_1 = localStorage.getItem('address_1_saved')) {
+      $('select[name="city"] option').each(function() {
+        if ($(this).text() == address_1) {
+          $(this).attr('selected', '');
+        }
+      })
+      $('input.billing_address_1').attr('value', address_1);
+    }
+    $this.on('change', function(i) {
+      i = $this.children('option:selected').index() - 1;
+      var str = '';
+      r = $this.val();
+      if (r != '') {
+        arr[i].forEach(function(el) {
+          str += '<option value="' + el + '">' + el + '</option>';
+          $('select[name="district"]').html('<option value="">Quận / Huyện</option>' + str);
+        })
+        var address_1 = $this.children('option:selected').text();
+        var district = $('select[name="district"]').html();
+        localStorage.setItem('address_1_saved', address_1);
+        localStorage.setItem('district', district);
+        $('select[name="district"]').on('change', function() {
+          var target = $(this).children('option:selected');
+          target.attr('selected', '');
+          $('select[name="_district"] option').not(target).removeAttr('selected');
+          var address_2 = target.text();
+          $('input.billing_address_2').attr('value', address_2);
+          district = $('select[name="district"]').html();
+          localStorage.setItem('district', district);
+          localStorage.setItem('address_2_saved', address_2);
+        })
+      } else {
+        $('select[name="district"]').html('<option value="">Quận / Huyện</option>');
+        district = $('select[name="district"]').html();
+        localStorage.setItem('district', district);
+        localStorage.removeItem('address_1_saved', address_1);
+      }
+    })
+  })
+})
+//]]>
+</script>
+{% endblock %}

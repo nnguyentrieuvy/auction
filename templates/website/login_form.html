@@ -75,6 +75,9 @@
 				<p>Hệ thống đấu giá sinh viên</p>
 			</div>
 			<div class="content-error">
+                <div class="alert alert-warning" role="alert" id="warning" style="display: none;">
+                     <strong>Vui lòng xác nhận email để đăng nhập.</strong>
+                </div>
 				<div class="hpanel">
                     <div class="panel-body">
                         <form id="loginForm" method="post">
@@ -163,15 +166,15 @@
                if (response['kq'] == '0') {
                     $("#message").text('Tài khoản hoặc mật khẩu không chính xác!');
                     var z = $("#message").text();
-                    }
+               }
                else if (response['kq'] == 'redirect') {
-                    window.location='/login';
-                    }
+                    $("#warning").show();
+               }
 <!--               else if (response['kq'] == '3') {-->
 <!--                    window.location='../index';-->
 <!--                    }-->
                else {
-                    window.location='/index';
+                    window.location='/usr/0/information';
                    }
                },
                error: function () {
