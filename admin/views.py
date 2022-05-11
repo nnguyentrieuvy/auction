@@ -17,7 +17,6 @@ def login_form(request):
         return redirect('../../admin/index')
     else:
         form = AccountForm()
-        # request.session['auction_account'] = {'username': 'admin', 'password': 'd033e22ae348aeb5660fc2140aec35850c4da997', 'role': 'admin'}
         return render(request, 'admin/login_form.html', {'form': form})
 
 
@@ -127,37 +126,6 @@ def change_password_form(request):
     form = ChangePaswordForm
     return render(request, 'admin/change_password_form.html', {'form': form})
 
-# @csrf_exempt
-# def login(request):
-#     if request.method == "POST":
-#         # if this is a POST request we need to process the form data
-#         acc = request.POST.get('account')
-#         pwd = request.POST.get('password')
-#         response_data = {}
-#
-#         post = account(account=acc, password=pwd, auth_password= '', email= '', auth_email= '')
-#         # post.save()
-#         print(acc)
-#         response_data['result'] = 'Mat khau sai!'
-#
-#         # return HttpResponse(
-#         #     json.dumps(response_data),
-#         #     content_type="application/json"
-#         # )
-#         print('highghghg')
-#         return JsonResponse({'kq': 'Tai khoan hoac mat khau khong chinhs xac!'}, status=200)
-#         # return HttpResponseRedirect('/admin/index')
-#         # return render(request, 'admin/index.html')
-#
-#     else:
-#         return HttpResponse(
-#             json.dumps({"nothing to see": "this isn't happening"}),
-#             content_type="application/json"
-#         )
-#
-#     # return render(request, 'admin/lg.html', {'form': AccountForm()})
-#     # return JsonResponse({'kq': 'Tai khoan hoac mat khau khong chinhs xac!'}, status=200)
-#     # return render(request, 'admin/login_message.html')
 
 @csrf_exempt
 def login(request):

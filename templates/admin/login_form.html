@@ -61,7 +61,7 @@
 		============================================ -->
     <script src="{% static 'admin/js/vendor/modernizr-2.8.3.min.js' %}"></script>
     <!-- Ajax-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>-->
 </head>
 
 <body>
@@ -109,7 +109,7 @@
     </div>
     <!-- jquery
 		============================================ -->
-<!--    <script src="{% static 'admin/js/vendor/jquery-1.12.4.min.js' %}"></script>-->
+    <script src="{% static 'admin/js/vendor/jquery-1.12.4.min.js' %}"></script>
     <!-- bootstrap JS
 		============================================ -->
     <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
@@ -154,7 +154,8 @@
     <script src="{% static 'admin/js/main.js' %}"></script>
     <!-- tawk chat JS
 		============================================ -->
-    <script src="{% static 'admin/js/tawk-chat.js' %}"></script>
+<!--    <script src="{% static 'admin/js/tawk-chat.js' %}"></script>-->
+    {% block javascript %}
     <script>
     $("#loginForm").submit(function (e) {
         e.preventDefault();
@@ -187,6 +188,7 @@
         });
     });
     </script>
+   {% endblock %}
 </body>
 
 </html>

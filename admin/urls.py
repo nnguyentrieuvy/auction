@@ -19,5 +19,4 @@ urlpatterns = [
     path('admin/attributes', views.attributes),
     path('admin/attributes/delete=<int:id>', views.delete_attributes),
     path('admin/attributes/update=<int:id>', views.update_attributes),
-
     ]
