@@ -59,7 +59,8 @@ class category(Document):
     attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE))
 
 class OneImage(EmbeddedDocument):
-    element = fields.ImageField()
+    image = fields.ImageField()
+    url = fields.StringField()
 
 
 class product(Document):
@@ -68,9 +69,7 @@ class product(Document):
     decription = fields.StringField(max_length=500)
     quantity = fields.IntField(default=1)
     shipping = fields.StringField(max_length=50)
-    # image = fields.StringField()
     image = fields.EmbeddedDocumentListField(OneImage)
-    imageURL = fields.ListField(StringField())
 
 
 class room(Document):

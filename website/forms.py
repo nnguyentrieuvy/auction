@@ -87,42 +87,8 @@ class RoomForm(DocumentForm):
       fields = ('__all__')
 
 
-class MyCustomWidget(forms.MultiWidget):
-  def __init__(self, attrs=None):
-    widgets = (
-      forms.widgets.ClearableFileInput(),
-      forms.widgets.ClearableFileInput(),
-      forms.widgets.ClearableFileInput(),
-      forms.widgets.ClearableFileInput(),
-    )
-    # widgets = [fields[0].widget, fields[1].widget, fields[2].widget, fields[3].widget]
-    super(MyCustomWidget, self).__init__(widgets, attrs)
 
-
-  def decompress(self, value):
-    if value:
-      return re.split(r"\-", value)
-    return [None, None, None, None]
-
-class MyCustomField(forms.MultiValueField):
-  widget = MyCustomWidget
-
-  def __init__(self, *args, **kwargs):
-    fields = (
-      forms.ImageField(),
-      forms.ImageField(),
-      forms.ImageField(),
-      forms.ImageField(),
-    )
-    # self.widget = MyCustomWidget(widgets=[fields[0].widget, fields[1].widget, fields[2].widget, fields[3].widget])
-    super(MyCustomField, self).__init__(*args, fields, **kwargs)
-    # self.widget = MyCustomWidget(widgets=[fields[0].widget, fields[1].widget, fields[2].widget])
-
-  def compress(self, data_list):
-      return [data_list[0], data_list[1], data_list[2]]
-    # return "-".join(data_list)
-
-class AddressFieldWidget(forms.MultiWidget):
+class ProductImageFieldWidget(forms.MultiWidget):
     widgets = (
         forms.widgets.ClearableFileInput(),
         forms.widgets.ClearableFileInput(),
@@ -134,23 +100,8 @@ class AddressFieldWidget(forms.MultiWidget):
             return [value[0],value[1],value[2]]
         return [None, None, None]
 
-    # def format_output(self, rendered_widgets):
-    #     str = ''
-    #     line_1 = '<td class="align_left"><label for="contact_phone">Address Line 1</label></td>'
-    #
-    #     for field in rendered_widgets:
-    #         str += '<tr>' + line_1
-    #         str += '<td class="align_right">%s</td></tr>' % field
-    #     return '<tr>' + str + '</tr>'
-    #
-    # def value_from_datadict(self,data,files,name):
-    #     line_list = [widget.value_from_datadict(data,files,name+'_%s' %i) for i,widget in enumerate(self.widgets)]
-    #     try:
-    #         return line_list[0] + ' ' + line_list[1] + ' ' + line_list[2]
-    #     except:
-    #         return ''
 
-class AddressField(forms.MultiValueField):
+class ProductImageField(forms.MultiValueField):
     def __init__(self, *args, **kwargs):
         fields = (
             forms.ImageField(),
@@ -158,17 +109,14 @@ class AddressField(forms.MultiValueField):
             forms.ImageField(),
             # forms.ImageField(),
         )
-        self.widget = AddressFieldWidget(widgets=[fields[0].widget, fields[1].widget, fields[2].widget])
-        super(AddressField, self).__init__(fields, *args, **kwargs)
+        self.widget = ProductImageFieldWidget(widgets=[fields[0].widget, fields[1].widget, fields[2].widget])
+        super(ProductImageField, self).__init__(fields, *args, **kwargs)
 
     def compress(self, data_list):
         if data_list:
-            return [data_list[0], data_list[1], data_list[2]]
-            # return "-".join(data_list)
-            # return data_list[0].readlines(), data_list[1].readlines(), data_list[2].readlines()
+            return [models.OneImage(image=data_list[0], url=data_list[0].name), models.OneImage(image=data_list[1], url=data_list[1].name),
+                    models.OneImage(image=data_list[2], url=data_list[2].name)]
 
-    # def compress(self, data_list):
-    #     return data_list[0] + ' ' + data_list[1] + ' ' + data_list[2]
 
 
 class ProductForm(DocumentForm):
@@ -184,15 +132,7 @@ class ProductForm(DocumentForm):
     category = forms.ChoiceField(label='Danh mục', choices=get_values)
     name = forms.CharField(label='Tiêu đề', widget=forms.TextInput(attrs={'value': 'Title here'}))
     quantity = forms.IntegerField(label='Số lượng', widget=forms.TextInput(attrs={'value': 1}))
-    # image = forms.MultiValueField(fields=(forms.ImageField(), forms.ImageField()),
-    #                               widget=forms.MultiWidget(widgets=(
-    #     forms.widgets.ClearableFileInput(),
-    #     forms.widgets.ClearableFileInput(),
-    # )))
-    # image.render('name', ['john', 'paul'])
-    image = AddressField(label='Hình ảnh')
-    # image = forms.DateTimeField(label='Hình ảnh', widget=TimedeltaWidget)
-    # forms.ImageField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    image = ProductImageField(label='Hình ảnh')
     decription = forms.CharField(label='Mô tả sản phẩm', widget=forms.Textarea(), initial='decription here')
     shipping = forms.ChoiceField(label='Phí vận chuyển', choices=[('---Chọn---', '---Chọn---'),
         ('Giá sản phẩm đã bao gồm phí vận chuyển' ,'Giá sản phẩm đã bao gồm phí vận chuyển'),
