@@ -11,6 +11,7 @@ urlpatterns = [
     path('home', views.home),
     path('category', views.category_select),
     path('seller/detail_product', views.detail_product),
+    path('seller/detail_product/save', views.save_product),
     path('seller/detail_product_form', views.detail_product_form),
     # path('verification', views.verification_form),
     ]

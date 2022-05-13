@@ -828,7 +828,7 @@
                         <div class="sparkline12-list">
                             <div class="sparkline12-hd">
                                 <div class="main-sparkline12-hd">
-                                    <h1>All Form Element</h1>
+                                    <h1>Thông tin sản phẩm</h1>
                                 </div>
                             </div>
                             <div class="sparkline12-graph">
@@ -836,7 +836,8 @@
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="all-form-element-inner">
-                                                <form action="#">
+                                                <form id="form-select-category" method="post" enctype="multipart/form-data">
+                                                    {% csrf_token %}
                                                     {% for f in form %}
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -855,7 +856,7 @@
                                                                 <div class="col-lg-3"></div>
                                                                 <div class="col-lg-9">
                                                                     <div class="login-horizental cancel-wp pull-left form-bc-ele">
-                                                                        <button class="btn btn-white" type="submit">Cancel</button>
+<!--                                                                        <button class="btn btn-white" type="submit">Cancel</button>-->
                                                                         <button class="btn btn-sm btn-primary login-submit-cs" type="submit">Save Change</button>
                                                                     </div>
                                                                 </div>
@@ -902,13 +903,13 @@
        var dt = new FormData(form);
        $.ajax({
                type: 'POST',
-               url: "/seller/detail_product",
+               url: "/seller/detail_product/save",
                data: dt,
                cache: false,
                processData: false,
                contentType: false,
                success: function (response) {
-                  $("#message").show();
+                  alert('jjjjjj');
                },
                error: function (response) {
 <!--                  console.log(response)-->

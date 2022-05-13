@@ -58,13 +58,18 @@ class category(Document):
     name = fields.StringField(max_length=300)
     attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE))
 
+class OneImage(EmbeddedDocument):
+    element = fields.ImageField()
+
+
 class product(Document):
     name = fields.StringField(max_length=300)
-    category = fields.ListField(ReferenceField('category', reverse_delete_rule=CASCADE))
+    category = fields.ReferenceField('category', reverse_delete_rule=CASCADE)
     decription = fields.StringField(max_length=500)
     quantity = fields.IntField(default=1)
     shipping = fields.StringField(max_length=50)
-    image = fields.ListField(ImageField(upload_to='media', blank=True))
+    # image = fields.StringField()
+    image = fields.EmbeddedDocumentListField(OneImage)
     imageURL = fields.ListField(StringField())
 
 
