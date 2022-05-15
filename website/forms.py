@@ -4,6 +4,7 @@ from django import forms
 from .models import *
 from . import models
 from django_mongoengine.forms import DocumentForm
+from django.core.files.storage import FileSystemStorage
 
 
 class SignupForm(DocumentForm):
@@ -93,12 +94,13 @@ class ProductImageFieldWidget(forms.MultiWidget):
         forms.widgets.ClearableFileInput(),
         forms.widgets.ClearableFileInput(),
         forms.widgets.ClearableFileInput(),
+        forms.widgets.ClearableFileInput(),
     )
     def decompress(self,value):
         if value:
             # return value.split("|")
-            return [value[0],value[1],value[2]]
-        return [None, None, None]
+            return [value[0], value[1], value[2], value[3]]
+        return [None, None, None, None]
 
 
 class ProductImageField(forms.MultiValueField):
@@ -107,15 +109,21 @@ class ProductImageField(forms.MultiValueField):
             forms.ImageField(),
             forms.ImageField(),
             forms.ImageField(),
-            # forms.ImageField(),
+            forms.ImageField(),
         )
-        self.widget = ProductImageFieldWidget(widgets=[fields[0].widget, fields[1].widget, fields[2].widget])
+        self.widget = ProductImageFieldWidget(widgets=[fields[0].widget, fields[1].widget, fields[2].widget, fields[3].widget])
         super(ProductImageField, self).__init__(fields, *args, **kwargs)
 
     def compress(self, data_list):
         if data_list:
+            fs = FileSystemStorage()
+            # fs.save(img.name, img)
+            for i in range(0, 4):
+               name = fs.save(data_list[i].name, data_list[i])
+               # name = name +
+               # url = fs.url(name)
             return [models.OneImage(image=data_list[0], url=data_list[0].name), models.OneImage(image=data_list[1], url=data_list[1].name),
-                    models.OneImage(image=data_list[2], url=data_list[2].name)]
+                    models.OneImage(image=data_list[2], url=data_list[2].name), models.OneImage(image=data_list[2], url=data_list[3].name)]
 
 
 
@@ -129,7 +137,8 @@ class ProductForm(DocumentForm):
     duration = forms.ChoiceField(label='Diễn ra', choices=CHOICES, widget=forms.RadioSelect, initial='1')
     startingbid = forms.CharField(label='Giá khởi điểm (.000)',widget=forms.TextInput(attrs={'data-mask': "VND 999999",'title':"Đơn giá 1000VND",
                                                                                              'value': 11}))
-    category = forms.ChoiceField(label='Danh mục', choices=get_values)
+    category = forms.ChoiceField(label='Danh mục', choices=get_values, initial='None', widget=forms.Select(
+        attrs={'class': 'form-control chosen-select'}))
     name = forms.CharField(label='Tiêu đề', widget=forms.TextInput(attrs={'value': 'Title here'}))
     quantity = forms.IntegerField(label='Số lượng', widget=forms.TextInput(attrs={'value': 1}))
     image = ProductImageField(label='Hình ảnh')
@@ -143,10 +152,10 @@ class ProductForm(DocumentForm):
       super(ProductForm, self).__init__(*args, **kwargs)
       for visible in self.visible_fields():
          visible.field.widget.attrs['class'] = 'form-control'
-
-      self.fields['category'].widget.attrs['class'] = 'form-control chosen-select'
-      self.fields['duration'].widget.attrs['class'] = 'i - checks pull - left'
+         self.fields['category'].widget.attrs['class'] = 'form-control chosen-select'
+         self.fields['duration'].widget.attrs['class'] = 'i - checks pull - left'
 
     class Meta:
       document = models.product
       fields = ['category', 'name', 'decription', 'quantity', 'shipping', 'image']
+

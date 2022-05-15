@@ -1,7 +1,7 @@
 {% extends "website/base.html" %}
 {% load static %}
 {% block title %}
-    <title>Trang chủ</title>
+    <title>Chi tiet san pham</title>
 {% endblock %}
 {% block stylesheet%}
    <!-- chosen CSS
@@ -845,7 +845,9 @@
                                                                 <label class="login2 pull-right pull-right-pro">{{ f.label }}</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+
                                                                 {{ f }}
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -895,7 +897,22 @@
 		============================================ -->
     <script src="{% static 'admin/js/jquery.maskedinput.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
-<script src="{% static 'admin/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'admin/js/vendor/jquery-1.12.4.min.js' %}"></script>
+<script>
+    var $category = $("#id_category_chosen");
+    $(document).ready(function(){
+       var val = $("#id_category option:selected").html();
+       $("#id_category_chosen").replaceWith
+                    ("<div class='change' style='padding-top: 10px;'>\
+                    <strong>"+ val +"</strong>\
+                    <div style='float: right;'><a href='javascript:ll();' class='a-edit'>Sửa</a></div></div>");
+    });
+
+    function ll(){
+       $(".change").replaceWith
+                    ($category);
+    };
+</script>
 <script>
     $('#form-select-category').on('submit',function someFunction(e){
        e.preventDefault();

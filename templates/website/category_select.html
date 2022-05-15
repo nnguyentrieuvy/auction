@@ -842,7 +842,7 @@
                                                 {{ form.category }}
                                             </div>
                                             <div class="payment-adress">
-                                                <button type="submit" class="btn btn-primary waves-effect waves-light">Tiếp tục</button>
+                                                <button type="submit" formaction="/category" class="btn btn-primary waves-effect waves-light">Tiếp tục</button>
                                             </div>
                                         </div>
                                        </form>
@@ -871,21 +871,44 @@
 		============================================ -->
     <script src="{% static 'admin/js/chosen/chosen.jquery.js' %}"></script>
     <script src="{% static 'admin/js/chosen/chosen-active.js' %}"></script>
-<script src="{% static 'admin/js/vendor/jquery-1.12.4.min.js' %}"></script>
+<!--<script src="{% static 'admin/js/vendor/jquery-1.12.4.min.js' %}"></script>-->
 <script>
     $('#form-select-category').on('submit',function someFunction(e){
+<!--       e.preventDefault();-->
+<!--       var form = $(this)[0];-->
+<!--       var dt = new FormData(form);-->
+<!--       $.ajax({-->
+<!--               type: 'POST',-->
+<!--               url: "/seller/detail_product",-->
+<!--               data: dt,-->
+<!--               cache: false,-->
+<!--               processData: false,-->
+<!--               contentType: false,-->
+<!--               success: function (response) {-->
+<!--                  $( 'body' ).load( "/seller/detail_product_form");-->
+<!--&lt;!&ndash;                  location.replace('/seller/detail_product_form');&ndash;&gt;-->
+<!--               },-->
+<!--               error: function (response) {-->
+<!--&lt;!&ndash;                  console.log(response)&ndash;&gt;-->
+<!--               }-->
+<!--        });-->
+<!--    });-->
+</script>
+<script>
+    $(document).ready(function someFunction(e){
        e.preventDefault();
-       var form = $(this)[0];
+       var form = $('#form-select-category')[0];
        var dt = new FormData(form);
        $.ajax({
                type: 'POST',
-               url: "/seller/detail_product",
+               url: "/category",
                data: dt,
                cache: false,
                processData: false,
                contentType: false,
                success: function (response) {
-                  window.location = '/seller/detail_product_form';
+                  alert(response['message']);
+                  $("#id_category").attr('disabled', 'disabled');
                },
                error: function (response) {
 <!--                  console.log(response)-->

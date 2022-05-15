@@ -172,7 +172,6 @@ def update(request):
             acc = form.save(commit=False)
             img = request.FILES.get('image')
             fs = FileSystemStorage()
-            # fs.save(img.name, img)
             if img is not None:
                 name = fs.save(img.name, img)
                 url = fs.url(name)
@@ -180,13 +179,13 @@ def update(request):
             acc.is_verify = True
             acc.role = 'user'
             acc.img_url = url
-            print(request.FILES)
-            # print(img.name)
-
-            # destination = open('/images/' + str(img.name), 'wb+')
             acc.save()
-            # for c in img.chunks():
-            #     destination.write(c)
+
+            # with open(r'C:\Users\ADMIN\Pictures\Screenshots\hhh.png', 'rb') as fd:
+            #     a = models.account()
+            #     i = a.image.put(fd, content_type='image/png')
+            #     acc.image = i
+            # acc.save()
             return JsonResponse({"error": ''}, status=200)
     return redirect("/usr/0/information")
 
@@ -198,7 +197,16 @@ def home(request):
 
 def category_select(request):
     form = ProductForm
-    return render(request, 'website/category_select.html', {'form': form})
+    if request.method == "POST":
+        if request.is_ajax:
+            form = ProductForm(request.POST)
+            if form.is_valid():
+                category_id = form.cleaned_data['category']
+                print(category_id)
+                return JsonResponse({"message": category_id}, status=200)
+        return render(request, 'website/detail_product.html', {'form': form})
+    else:
+        return render(request, 'website/category_select.html', {'form': form})
 
 
 def detail_product(request):
@@ -210,16 +218,16 @@ def detail_product(request):
             return JsonResponse({"message": ''}, status=200)
     return redirect('/home')
 
+
 def detail_product_form(request):
-    form = ProductForm
-    return render(request, 'website/detail_product.html', {'form': form})
+    if request.method == "POST":
+        form = ProductForm
+        return render(request, 'website/detail_product.html', {'form': form})
+    return redirect("/category")
 
 def save_product(request):
     if request.is_ajax and request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
-        print(form.errors)
-        print(request.POST)
-        print(request.FILES)
         if form.is_valid():
             category_id = form.cleaned_data['category']
             c = models.category.objects(id=category_id).first()

@@ -26,7 +26,7 @@ class account(Document):
     role = fields.StringField(max_length=100, blank=True)
     is_verify = fields.BooleanField(default=False, blank=True)
     token = fields.StringField(default=None, blank=True)
-    image = fields.ImageField(upload_to='media', blank=True)
+    image = fields.ImageField(upload_to='account', blank=True)
     img_url = fields.StringField(default=None, blank=True)
     # image = fields.ImageField(upload_to='media', default=content_file_name, blank=True)
 
@@ -59,7 +59,7 @@ class category(Document):
     attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE))
 
 class OneImage(EmbeddedDocument):
-    image = fields.ImageField()
+    image = fields.ImageField(upload='product')
     url = fields.StringField()
 
 
