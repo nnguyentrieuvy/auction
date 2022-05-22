@@ -101,7 +101,10 @@ DATABASES = {
 #     'default': {'name': 'django_mongoengine_test'}
 # }
 from mongoengine import connect
-connect('auction')
+
+DB_URI = "mongodb+srv://nguyenvy:nguyenvy@auction.6s3oq.mongodb.net/auction?retryWrites=true&w=majority"
+connect(host=DB_URI)
+# connect('auction')
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

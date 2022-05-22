@@ -3,6 +3,11 @@
 {% block title %}
     <title>Thêm danh mục</title>
 {% endblock %}
+{% block stylesheet%}
+   <!-- chosen CSS
+		============================================ -->
+    <link rel="stylesheet" href="{% static 'admin/css/chosen/bootstrap-chosen.css' %}">
+{% endblock %}
 
 {% block breadcome-area %}
 {% endblock %}
@@ -31,8 +36,8 @@
                                                         <div class="row">
                                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                 <div class="form-group">
-                                                                    <label class="control-label">{{ form.catagory_parent.label }}</label>
-																    {{ form.catagory_parent }}
+                                                                    <label class="control-label">{{ form.category_parent.label }}</label>
+																    {{ form.category_parent }}
 															    </div>
                                                                 <div class="form-group">
                                                                     <label class="control-label">{{ form.name.label }}</label>
@@ -89,18 +94,23 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row attr-form" id="attr-form">
+                                    <div class="row" id="attr-form">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="review-content-section">
-                                                <div class="row">
+                                                <div class="row attr-form check" id="check" style="display: none;">
                                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                         <div class="form-group">
                                                             {{ form_attribute.attribute_groups_id }}
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
                                                         <div class="form-group">
                                                             {{ form.attributes_id }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12">
+                                                        <div class="form-group">
+                                                            <button data-toggle="tooltip" title="Xóa" class="pd-setting-ed remove-attr-btn"><i class="fa fa-remove" aria-hidden="true"></i></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -164,6 +174,10 @@
 {% endblock %}
 {% block javascript %}
     <script src="{% static 'admin/js/dropzone/dropzone.js' %}"></script>
+<!-- chosen JS
+		============================================ -->
+    <script src="{% static 'admin/js/chosen/chosen.jquery.js' %}"></script>
+    <script src="{% static 'admin/js/chosen/chosen-active.js' %}"></script>
     <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
 
@@ -178,13 +192,14 @@
        e.preventDefault();
        values = [];
        var select = document.getElementsByClassName("form-control tt");
-
        for (let i = 0; i < select.length; i++) {
-          if ((select.length > 1) && (select[i].value == 'None')) {
-              values.push('NoneOfAttribute');
-          } else {
+          if ((select.length > 1) && (select[i].style.display != 'none')) {
               values.push(select[i].value);
           }
+       }
+       var check = 'False';
+       if ($(".check").css('display') != 'none'){
+          check = 'True';
        }
        $.ajax({
                type: 'POST',
@@ -192,10 +207,11 @@
                data: {
                   csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
                   id: 1,
-                  catagory_parent: $("#id_catagory_parent").val(),
+                  category_parent: $("#id_category_parent").val(),
                   name: $("#id_name").val(),
                   attrs_id: values,
-                  attributes_id: '1',
+                  check_add_attr: check,
+                  attributes_id: 0,
                },
                success: function (response) {
                   if(response['message'] == '') {
@@ -212,13 +228,19 @@
        });
      });
     </script>
-{% endblock %}
+<!--{% endblock %}-->
 <script>
      $(document).on('click','.add-attr-btn', function someFunction(e){
      var select = document.getElementsByClassName("form-control tt");
-     node = document.getElementsByClassName("attr-form")[0];
-     clone = node.cloneNode(true);
-     document.getElementById("reviews").appendChild(clone);
+     att = document.getElementsByClassName("attr-form")[0];
+     if(att.style.display == 'none'){
+        att.style.display = "block";
+     }
+     else {
+       node = document.getElementsByClassName("attr-form")[0];
+       clone = node.cloneNode(true);
+       document.getElementById("reviews").appendChild(clone);
+     }
 <!--      if (select[select.length - 1].value == 'None') {-->
 <!--         alert('Vui lòng chọn thuộc tính!');-->
 <!--      }-->
@@ -228,25 +250,37 @@
      });
  </script>
 <script>
-    $(document).ready(function(){
+     $(document).on('click','.remove-attr-btn', function someFunction(e){
+        $attrform = $(this).parent().parent().parent();
+        $all_attrform = $(".attr-form");
+        if ($all_attrform.length > 1){
+          $attrform.remove();
+         }
+        else {
+          $attrform.css("display", "none");
+        }
+     });
+ </script>
+<script>
+<!--    $(document).ready(function(){-->
 
-  // Initialize select2
-  $(".tt").select2();
-  $(".tt").prepend($('<option>', {
-    value: 'None',
-    text: '-----None-----'
-  }));
+<!--  // Initialize select2-->
+<!--&lt;!&ndash;  $(".tt").select2();&ndash;&gt;-->
+<!--  $(".tt").prepend($('<option>', {-->
+<!--    value: 'None',-->
+<!--    text: '-&#45;&#45;&#45;&#45;None-&#45;&#45;&#45;&#45;'-->
+<!--  }));-->
 
-  $(".t").prepend($('<option>', {
-    value: 'None',
-    text: '-----None-----'
-  }));
+<!--  $(".t").prepend($('<option>', {-->
+<!--    value: 'None',-->
+<!--    text: '-&#45;&#45;&#45;&#45;None-&#45;&#45;&#45;&#45;'-->
+<!--  }));-->
 
-  $(".tt").val('None');
-  $(".t").val('None');
-  $(".t").attr('disabled', 'disabled');
+<!--  $(".tt").val('None');-->
+<!--  $(".t").val('None');-->
+<!--  $(".t").attr('disabled', 'disabled');-->
 
-});
+<!--});-->
 </script>
 <script>
     $(document).on('change','.tt', function() {

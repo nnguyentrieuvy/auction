@@ -1,5 +1,9 @@
 {% extends "admin/login_form.html" %}
 
+{% block btn %}
+<a class="btn btn-default btn-block" href="/registration">Đăng ký</a>
+{% endblock %}
+
 {% block javascript %}
     <script>
     $("#loginForm").submit(function (e) {

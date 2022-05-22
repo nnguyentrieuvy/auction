@@ -25,17 +25,17 @@ def category(request):
     list = []
     acc = account.objects(role='admin').first()
     if check_permission.permission(request, acc, 'admin') == 'admin':
-        user = acc.account
+        user = acc.id
         user = user.split().pop(0)
 
         for cate in models.category.objects:
             list1 = [cate.name]
-            pr = cate.catagory_parent
+            pr = cate.category_parent
 
             while pr != 0:
                 if pr != 0:
                     c = models.category.objects.get(id=pr)
-                    pr = c.catagory_parent
+                    pr = c.category_parent
                     list1.append(c.name)
             list1.reverse()
             s = ' > '.join([str(item) for item in list1])
@@ -51,7 +51,7 @@ def category(request):
 def category_edit(request):
     acc = account.objects(role='admin').first()
     if check_permission.permission(request, acc, 'admin') == 'admin':
-        user = acc.account
+        user = acc.id
         user = user.split().pop(0)
 
         message = 'Lỗi!'
@@ -61,32 +61,22 @@ def category_edit(request):
         if request.is_ajax and request.method == "POST":
             form = CategoryForm(request.POST)
             name = request.POST.get('name')
-            catagory_parent = request.POST.get('catagory_parent')
+            category_parent = request.POST.get('category_parent')
             attrs_id = request.POST.getlist('attrs_id[]')
             if not models.category.objects(name=name):
                 if form.is_valid():
                     message = ''
                     cate = form.save(commit=False)
+                    print(request.POST)
                     if not models.category.objects.latest('id'):
                         cate.id = 1
                     else:
                         last_doc = models.category.objects.latest('id')
                         cate.id = int(last_doc.id) + 1
-
-                    # cate.setlist('attributes_id[]', [1, 2])
-                    for l in attrs_id:
-                        if l == 'NoneOfAttribute':
-                            message = 'Vui lòng chọn thuộc tính!'
-                            return JsonResponse({"message": message}, status=200)
-
-                        elif l != 'None':
-                            doc = models.attributes.objects(id=int(l)).first()
-                            list_attrs_id.append(doc)
-
-                        else:
-                            doc = models.attributes(id=0, name='')
-                            list_attrs_id.append(doc)
-                            break
+                    if request.POST['check_add_attr'] == 'True':
+                       for l in attrs_id:
+                          doc = models.attributes.objects(id=int(l)).first()
+                          list_attrs_id.append(doc)
                     cate.attributes_id = list_attrs_id
                     cate.save()
             else:
@@ -98,23 +88,39 @@ def category_edit(request):
         return redirect('/admin')
 
 
-
 @csrf_exempt
 def category_update(request, id):
     form = CategoryForm
+    print('snkshskhs')
     form_attribute = AttributesForm
     cate = models.category.objects(id=id).first()
-    # if request.is_ajax and request.method == "POST":
-    #     form = AttributeGroupsForm(request.POST)
-    #     if form.is_valid():
-    #         form.save()
-    #         return JsonResponse({"message": cate}, status=200)
-    return render(request, 'admin/category_update.html', {'form': form, 'form_attribute':form_attribute, 'cate': cate})
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == "POST":
+        message = 'Lỗi!'
+        ls_attr = request.POST.getlist('attributes[]')
+        name = request.POST['name']
+        cate_attr = []
+        cate_attr_int = []
+        if request.POST['check_add_attr'] == 'True':
+           for x in ls_attr:
+              cate_attr_int.append(models.attributes.objects(id=int(x)).first())
+        if (name == cate.name) and (cate_attr == ls_attr):
+            message = 'Các thông tin không có sự thay đổi!'
+        else:
+            form = CategoryForm(request.POST)
+            f = form.save(commit=False)
+            f.id = id
+            f.name = name
+            f.attributes_id = cate_attr_int
+            f.save()
+            message = 'Cập nhật thành công!'
+        return JsonResponse({"message": message}, status=200)
+    else:
+        return render(request, 'admin/category_update.html', {'form': form, 'form_attribute': form_attribute, 'cate': cate})
 
 def index(request):
     acc = account.objects(role='admin').first()
     if check_permission.permission(request, acc, 'admin') == 'admin':
-        s = acc.account
+        s = acc.id
         s = s.split().pop(0)
 
         return render(request, 'admin/index.html', {'username': s})
@@ -143,9 +149,9 @@ def login(request):
                 password = form.cleaned_data['password']
                 password = hashlib.sha1(bytes(password, 'utf-8'))
                 password = password.hexdigest()
-                if Account == acc.account and password == acc.password:
+                if Account == acc.id and password == acc.password:
                     kq = 1
-                    request.session['auction_account'] = {'username': acc.account, 'password': acc.password, 'role': 'admin'}
+                    request.session['auction_account'] = {'username': acc.id, 'password': acc.password, 'role': 'admin'}
                     vd = request.session['auction_account']
                     print(vd['username'])
                 else:
@@ -192,7 +198,7 @@ def changepwd(request):
                 if OldPwd == acc.password:
                     if NewPwd == AuthPwd:
                         # d033e22ae348aeb5660fc2140aec35850c4da997
-                        account.objects(account='admin').update(__raw__={'$set': {'password': NewPwd}})
+                        account.objects(id='admin').update(__raw__={'$set': {'password': NewPwd}})
                         acc.save()
                         message = 'Thao tác thành công!'
                     else:
@@ -210,7 +216,7 @@ def changepwd(request):
 def attribute_groups(request):
     acc = account.objects(role='admin').first()
     if check_permission.permission(request, acc, 'admin') == 'admin':
-        user = acc.account
+        user = acc.id
         user = user.split().pop(0)
 
         message = 'Lỗi!'
@@ -243,7 +249,7 @@ def attribute_groups(request):
 def attributes(request):
     acc = account.objects(role='admin').first()
     if check_permission.permission(request, acc, 'admin') == 'admin':
-        user = acc.account
+        user = acc.id
         user = user.split().pop(0)
 
         message = 'Lỗi!'
@@ -305,7 +311,7 @@ def delete_category(request, id):
     form_attribute = AttributesForm
     if request.is_ajax and request.method == "POST":
         attr = models.category.objects(id=id).first()
-        doc = models.category.objects(catagory_parent=id).first()
+        doc = models.category.objects(category_parent=id).first()
         if doc:
            doc.delete()
 

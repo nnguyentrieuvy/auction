@@ -10,15 +10,15 @@ class auction_account(Document):
 
 
 class account(Document):
-    account = fields.StringField(max_length=100)
+    id = fields.StringField(primary_key=True)
     password = fields.StringField(max_length=100)
     email = fields.StringField(max_length=100)
-    address = fields.StringField(max_length=100)
-    city = fields.StringField(max_length=100)
-    district = fields.StringField(max_length=100)
+    # address = fields.StringField(max_length=100)
+    # city = fields.StringField(max_length=100)
+    # district = fields.StringField(max_length=100)
     role = fields.StringField(max_length=100)
-    is_verify = fields.BooleanField(default=False)
-    token = fields.StringField(default=None)
+    # is_verify = fields.BooleanField(default=False)
+    # token = fields.StringField(default=None)
 
 class attribute_groups(Document):
     id = fields.IntField(primary_key=True)
@@ -37,9 +37,9 @@ class attributes(Document):
 
 class category(Document):
     id = fields.IntField(primary_key=True)
-    catagory_parent = fields.IntField()
+    category_parent = fields.IntField()
     name = fields.StringField(max_length=300)
-    attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE))
+    attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE), blank=True)
 
 
 

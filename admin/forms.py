@@ -51,17 +51,17 @@ class ChangePaswordForm(forms.Form):
 
 def get_values():
     list = []
-    category_list = []
+    category_list = [(0,'---Chọn---')]
 
     for cate in models.category.objects:
         if cate.attributes_id == [] or cate.attributes_id[0].id == 0:
             list1 = [cate.name]
-            pr = cate.catagory_parent
+            pr = cate.category_parent
 
             while pr != 0:
                 if pr != 0:
                     c = models.category.objects.get(id=pr)
-                    pr = c.catagory_parent
+                    pr = c.category_parent
                     list1.append(c.name)
             list1.reverse()
             s = ' > '.join([str(item) for item in list1])
@@ -73,12 +73,19 @@ def get_values():
 
     return category_list
 
+def get_list():
+    ls = [(0,'---Chọn---')]
+    for a in models.attributes.objects:
+        item = (a['id'], a['name'])
+        ls.append(item)
+    return ls
+
 class CategoryForm(DocumentForm):
     id = forms.CharField(label='Mã danh mục')
-    catagory_parent = forms.ChoiceField(label='Danh mục cha', choices=get_values, initial='')
+    category_parent = forms.ChoiceField(label='Danh mục cha', choices=get_values, initial=0)
     name = forms.CharField(label='Tên danh mục', max_length=100)
-    attributes_id = forms.ChoiceField(label='Tên thuộc tính', choices=attributes.objects.values_list('id','name'))
-
+    # attributes_id = forms.ChoiceField(label='Tên thuộc tính', choices=attributes.objects.values_list('id','name'))
+    attributes_id = forms.ChoiceField(label='Tên thuộc tính', choices=get_list, initial=0)
 
     def __init__(self, *args, **kwargs):
       super(CategoryForm, self).__init__(*args, **kwargs)
@@ -86,7 +93,7 @@ class CategoryForm(DocumentForm):
       for visible in self.visible_fields():
          visible.field.widget.attrs['class'] = 'form-control'
 
-      # self.fields['catagory_parent'] = forms.ChoiceField(label='Danh mục cha', choices=category_list, initial='')
+      # self.fields['category_parent'] = forms.ChoiceField(label='Danh mục cha', choices=category_list, initial='')
       self.fields['attributes_id'].widget.attrs.update({'class': 'form-control tt'})
 
     class Meta:
@@ -106,15 +113,26 @@ class AttributeGroupsForm(DocumentForm):
       document = attribute_groups
       fields = ('__all__')
 
+
+def get_list_attr_group():
+    l = [(0, '---Chọn---')]
+    for a in models.attribute_groups.objects:
+        item = (a['id'], a['name'])
+        l.append(item)
+    return l
+
 class AttributesForm(DocumentForm):
     # attr_groups_list = []
     # for c in attribute_groups.objects:
     #     attr_groups = (c.id, c.name)
     #     attr_groups_list.append(attr_groups)
 
+
     name = forms.CharField(label='Tên thuộc tính', max_length=300)
     name.widget.attrs['name'] = 'name'
-    attribute_groups_id = forms.ChoiceField(label='Nhóm thuộc tính',choices=attribute_groups.objects.values_list('id','name'))
+    attribute_groups_id = forms.ChoiceField(label='Nhóm thuộc tính',
+                                            choices=get_list_attr_group, initial=0)
+    # attribute_groups_id = forms.ChoiceField(label='Nhóm thuộc tính',choices=attribute_groups.objects.values_list('id','name'))
 
     def __init__(self, *args, **kwargs):
       super(AttributesForm, self).__init__(*args, **kwargs)

@@ -1,5 +1,6 @@
 import hashlib
 import io
+import json
 import random
 
 from PIL import Image
@@ -12,6 +13,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 from django.core.files.storage import FileSystemStorage
+from django.forms.models import model_to_dict
+from django.core import serializers
 from .forms import *
 from .models import *
 
@@ -191,58 +194,82 @@ def update(request):
 
 def home(request):
     cate = models.category.objects()
-    t = models.category.objects.filter(catagory_parent=3).first()
+    t = models.category.objects.filter(category_parent=3).first()
     print(t.pk)
     return render(request, 'website/room.html', {'cate': cate})
 
-def category_select(request):
-    form = ProductForm
+def product(request):
+    l = 3
+    form = ProductForm(l)
+    prd_att = ProductAttributesForm
+    c = models.category.objects()
+    cate = c.to_json()
+    print(cate)
     if request.method == "POST":
         if request.is_ajax:
-            form = ProductForm(request.POST)
-            if form.is_valid():
-                category_id = form.cleaned_data['category']
-                print(category_id)
-                return JsonResponse({"message": category_id}, status=200)
-        return render(request, 'website/detail_product.html', {'form': form})
+            try:
+                acc = models.account.objects.filter(pk=request.session['auction_account']['username'],
+                                                    password=request.session['auction_account']['password'],
+                                                    role='user').first()
+                u = acc.to_json()
+                form = ProductForm(l, request.POST)
+                if form.is_valid():
+                    category_id = form.cleaned_data['category']
+                    print(category_id)
+                    return JsonResponse({"message": category_id}, status=200)
+            except:
+                return redirect('/login')
+        return render(request, 'website/detail_product.html', {'form': form, 'user': u, 'prd_att': prd_att, 'cate': cate, 'c': c})
     else:
         return render(request, 'website/category_select.html', {'form': form})
 
 
-def detail_product(request):
-    if request.is_ajax and request.method == "POST":
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            category_id = form.cleaned_data['category']
-            print(category_id)
-            return JsonResponse({"message": ''}, status=200)
-    return redirect('/home')
+# def detail_product(request):
+#     if request.is_ajax and request.method == "POST":
+#         form = ProductForm(request.POST)
+#         if form.is_valid():
+#             category_id = form.cleaned_data['category']
+#             print(category_id)
+#             return JsonResponse({"message": ''}, status=200)
+#     return redirect('/home')
 
 
 def detail_product_form(request):
     if request.method == "POST":
         form = ProductForm
         return render(request, 'website/detail_product.html', {'form': form})
-    return redirect("/category")
+    return redirect("/seller/category")
+
+
+def get_category(request):
+    message = 'Lỗi!'
+    if request.is_ajax and request.method == "POST":
+        id = request.POST['id']
+        category_list = models.category.objects.filter(id=id).first()
+        d = category_list.attributes_id
+        ls = []
+        for item in d:
+            item = model_to_dict(item)
+            item['attribute_groups_id'] = model_to_dict(item['attribute_groups_id'])
+            ls.append(item)
+        print(ls)
+        return JsonResponse({"message": ls}, status=200)
+    return JsonResponse({"message": message}, status=400)
 
 def save_product(request):
     if request.is_ajax and request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
+        form = ProductForm(3, request.POST, request.FILES)
+
+        print(request.POST)
+        print(form.errors)
         if form.is_valid():
             category_id = form.cleaned_data['category']
             c = models.category.objects(id=category_id).first()
             f = form.save(commit=False)
             f.category = c
-            # list = []
-            # f.image = []
-            #
-            # for i in range(0, 3):
-            #     l = request.FILES['image_'+ str(i)]
-            #     db_image = OneImage(image=l)
-            #     f.image.append(db_image)
-
-            # f.imageURL = ['jjjj','qq']
-            f.save()
+            f.seller = models.account.objects(pk=request.session['auction_account']['username']).first()
+            p_id = f.save()
+            # p = models.product_attributes(product=models.product.objects(id=p_id).first(), attributes=)
             return JsonResponse({"message": ''}, status=200)
     return redirect('/home')
 

@@ -842,7 +842,7 @@
                                                 {{ form.category }}
                                             </div>
                                             <div class="payment-adress">
-                                                <button type="submit" formaction="/category" class="btn btn-primary waves-effect waves-light">Tiếp tục</button>
+                                                <button type="submit" formaction="/seller/product" class="btn btn-primary waves-effect waves-light">Tiếp tục</button>
                                             </div>
                                         </div>
                                        </form>
@@ -901,7 +901,7 @@
        var dt = new FormData(form);
        $.ajax({
                type: 'POST',
-               url: "/category",
+               url: "/seller/product",
                data: dt,
                cache: false,
                processData: false,

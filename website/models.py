@@ -7,14 +7,6 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 # Create your models here.
 
-# def content_file_name(instance, filename):
-#     return 'media/'.join(['content', instance.user.username, filename])
-
-# def content_file_name(instance, filename):
-#     fs = FileSystemStorage()
-#     n = fs.save(instance.img, filename)
-#     return fs.url(n)
-
 class account(Document):
     account = fields.StringField(max_length=100, primary_key=True)
     password = fields.StringField(max_length=100)
@@ -48,28 +40,42 @@ class attributes(Document):
 
 class category(Document):
     id = fields.IntField(primary_key=True)
-    catagory_parent = fields.IntField()
+    category_parent = fields.IntField()
     name = fields.StringField(max_length=300)
     attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE))
 
-class category(Document):
-    id = fields.IntField(primary_key=True)
-    catagory_parent = fields.IntField()
-    name = fields.StringField(max_length=300)
-    attributes_id = fields.ListField(ReferenceField('attributes', reverse_delete_rule=CASCADE))
 
 class OneImage(EmbeddedDocument):
     image = fields.ImageField(upload='product')
     url = fields.StringField()
 
 
+# class item_specifics(EmbeddedDocument):
+#     attributes = ReferenceField('attributes', reverse_delete_rule=CASCADE)
+#     content = fields.StringField(max_length=500)
+
+
 class product(Document):
+    # usr = account.objects(pk='hhh').first()
     name = fields.StringField(max_length=300)
     category = fields.ReferenceField('category', reverse_delete_rule=CASCADE)
     decription = fields.StringField(max_length=500)
     quantity = fields.IntField(default=1)
-    shipping = fields.StringField(max_length=50)
+    address = fields.StringField(max_length=200)
+    city = fields.StringField(max_length=300)
+    district = fields.StringField(max_length=300)
     image = fields.EmbeddedDocumentListField(OneImage)
+    startingbid = fields.FloatField()
+    duration = fields.StringField()
+    condition = fields.StringField()
+    # specifics = fields.EmbeddedDocumentListField(item_specifics)
+    seller = fields.ReferenceField('account', reverse_delete_rule=CASCADE)
+
+
+class product_attributes(Document):
+    product_id = fields.ReferenceField('product', reverse_delete_rule=CASCADE)
+    attributes = fields.ReferenceField('attributes', reverse_delete_rule=CASCADE)
+    content = fields.StringField(max_length=500)
 
 
 class room(Document):
@@ -82,7 +88,6 @@ class room(Document):
     QuantityOfBidder = fields.IntField()
     Bidders = fields.ListField(ReferenceField('account', reverse_delete_rule=CASCADE))
     HighestBidder = fields.ReferenceField('account', reverse_delete_rule=CASCADE)
-    StartingBid = fields.FloatField()
     CurrentBid = fields.FloatField()
     Status = fields.StringField(max_length=10)
     Winner = fields.ReferenceField('account', reverse_delete_rule=CASCADE)

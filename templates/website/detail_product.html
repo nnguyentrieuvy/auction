@@ -841,17 +841,42 @@
                                                     {% for f in form %}
                                                     <div class="form-group-inner">
                                                         <div class="row">
+                                                          {% if f.label == 'Giá khởi điểm' %}
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <label class="login2 pull-right pull-right-pro">{{ f.label }}</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-
-                                                                {{ f }}
-
+                                                                <div class="input-group">
+                                                                    {{ f }}
+                                                                    <span class="input-group-addon">.000 VND</span>
+                                                                </div>
                                                             </div>
+                                                          {% elif f.label != 'Giá khởi điểm' %}
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                                <label class="login2 pull-right pull-right-pro">{{ f.label }}</label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                                {{ f }}
+                                                            </div>
+                                                          {% endif %}
                                                         </div>
                                                     </div>
                                                     {% endfor %}
+                                                    <div id="attr-form">
+                                                         <div class="form-group-inner att" style="display: none;">
+                                                           <div class="row">
+<!--                                                                <input class="a" type="hidden" value="{{ x.id }}">-->
+                                                                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                                   {{ prd_att.attributes }}
+                                                                </div>
+                                                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                                   {{ prd_att.content }}
+                                                                </div>
+                                                           </div>
+                                                         </div>
+                                                    </div>
+                                                    <input class="billing_address_1" name="" type="hidden" value="">
+                                                    <input class="billing_address_2" name="" type="hidden" value="">
                                                     <div class="form-group-inner">
                                                         <div class="login-btn-inner">
                                                             <div class="row">
@@ -874,18 +899,6 @@
                         </div>
                     </div>
         </div>
-        <!-- dropdown search End-->
-<!--        <div class="footer-copyright-area">-->
-<!--            <div class="container-fluid">-->
-<!--                <div class="row">-->
-<!--                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
-<!--                        <div class="footer-copy-right">-->
-<!--                            <p>Copyright © 2018. All rights reserved. Template by <a href="https://colorlib.com/wp/templates/">Colorlib</a></p>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
 {% endblock %}
 
 {% block javascript %}
@@ -893,14 +906,25 @@
 		============================================ -->
     <script src="{% static 'admin/js/chosen/chosen.jquery.js' %}"></script>
     <script src="{% static 'admin/js/chosen/chosen-active.js' %}"></script>
-<!-- maskinput JS
+    <!-- maskinput JS
 		============================================ -->
     <script src="{% static 'admin/js/jquery.maskedinput.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
     <script src="{% static 'admin/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <!-- dictrict
+		============================================ -->
+    <script src="{% static 'admin/js/district.min.js' %}"></script>
 <script>
+    var dict = [];
     var $category = $("#id_category_chosen");
     $(document).ready(function(){
+       var usr = {{ user|safe }};
+       dict.push(usr);
+       localStorage.setItem('address_2_saved', dict[0]['district']);
+       localStorage.setItem('address_1_saved', dict[0]['city']);
+       $("#id_address").val(dict[0]['address']);
+       $("#id_city").val(dict[0]['city']);
+       $("#id_district").append($('<option selected="selected"></option>').val(dict[0]['district']).html(dict[0]['district']));
        var val = $("#id_category option:selected").html();
        $("#id_category_chosen").replaceWith
                     ("<div class='change' style='padding-top: 10px;'>\
@@ -932,6 +956,113 @@
 <!--                  console.log(response)-->
                }
         });
+    });
+</script>
+<script>
+//<![CDATA[
+if (address_2 = localStorage.getItem('address_2_saved')) {
+  $('select[name="calc_shipping_district"] option').each(function() {
+    if ($(this).text() == address_2) {
+      $(this).attr('selected', '');
+    }
+  })
+  $('input.billing_address_2').attr('value', address_2);
+}
+if (district = localStorage.getItem('district')) {
+  $('select[name="district"]').html(district);
+  $('select[name="district"]').on('change', function() {
+    var target = $(this).children('option:selected');
+    target.attr('selected', '');
+    $('select[name="district"] option').not(target).removeAttr('selected');
+    address_2 = target.text();
+    $('input.billing_address_2').attr('value', address_2);
+    district = $('select[name="district"]').html();
+    localStorage.setItem('district', district);
+    localStorage.setItem('address_2_saved', address_2);
+  })
+}
+$('select[name="city"]').each(function() {
+  var $this = $(this),
+    stc = '';
+  c.forEach(function(i, e) {
+    e += +1;
+    stc += '<option value="' + i + '">' + i + '</option>';
+    $this.html('<option value="">Tỉnh / Thành phố</option>' + stc);
+    if (address_1 = localStorage.getItem('address_1_saved')) {
+      $('select[name="city"] option').each(function() {
+        if ($(this).text() == address_1) {
+          $(this).attr('selected', '');
+        }
+      })
+      $('input.billing_address_1').attr('value', address_1);
+    }
+    $this.on('change', function(i) {
+      i = $this.children('option:selected').index() - 1;
+      var str = '';
+      r = $this.val();
+      if (r != '') {
+        arr[i].forEach(function(el) {
+          str += '<option value="' + el + '">' + el + '</option>';
+          $('select[name="district"]').html('<option value="">Quận / Huyện</option>' + str);
+        })
+        var address_1 = $this.children('option:selected').text();
+        var district = $('select[name="district"]').html();
+        localStorage.setItem('address_1_saved', address_1);
+        localStorage.setItem('district', district);
+        $('select[name="district"]').on('change', function() {
+          var target = $(this).children('option:selected');
+          target.attr('selected', '');
+          $('select[name="_district"] option').not(target).removeAttr('selected');
+          var address_2 = target.text();
+          $('input.billing_address_2').attr('value', address_2);
+          district = $('select[name="district"]').html();
+          localStorage.setItem('district', district);
+          localStorage.setItem('address_2_saved', address_2);
+        })
+      } else {
+        $('select[name="district"]').html('<option value="">Quận / Huyện</option>');
+        district = $('select[name="district"]').html();
+        localStorage.setItem('district', district);
+        localStorage.removeItem('address_1_saved', address_1);
+      }
+    })
+  })
+})
+//]]>
+</script>
+<script>
+    $(document).ready(function(){
+
+       $.ajax({
+               type: 'POST',
+               url: "/seller/get_category",
+               data: {
+                  csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                  id: $("#id_category").val(),
+               },
+               success: function (response) {
+                    var t = document.getElementsByClassName("att")[0];
+                    t.style.display = 'block';
+                    var node = $(".att")[0];
+                    clone = node.cloneNode(true);
+                    var select = $(".att");
+                    for (i = 0; i < response['message'].length; i++) {
+                       var a = response['message'][i]['id'];
+                       document.getElementById("attr-form").appendChild(clone);
+                       select.eq(i).val(a).change();
+                    }
+                    var select = $(".x");
+                    for (i = 0; i < response['message'].length; i++){
+                       var vl = select.eq(i).find(":selected").text();
+                       select.eq(i).replaceWith
+                                  ("<div class='login2 pull-right pull-right-pro' style='padding-top: 10px;'>\
+                                  <strong>"+ vl +"</strong></div>");
+                    }
+               },
+               error: function (response) {
+                  console.log(response)
+               }
+       });
     });
 </script>
 {% endblock %}
