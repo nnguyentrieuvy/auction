@@ -11,3 +11,10 @@ register.filter('mongo_id', mongo_id)
 def times(number):
     return range(number)
 register.filter('times', times)
+
+
+@register.filter("update_variable")
+def update_variable(value):
+    data = value
+    return data
+register.filter('update_variable', update_variable)

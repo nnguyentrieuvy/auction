@@ -79,18 +79,18 @@ class product_attributes(Document):
 
 
 class room(Document):
-    Title = fields.StringField(max_length=500)
-    Product_id = fields.ReferenceField('product', reverse_delete_rule=CASCADE)
-    Total = fields.FloatField()
-    Start = fields.DateTimeField(default=datetime.datetime.utcnow)
-    End = fields.DateTimeField()
-    Seller_id = fields.ReferenceField('account', reverse_delete_rule=CASCADE)
-    QuantityOfBidder = fields.IntField()
-    Bidders = fields.ListField(ReferenceField('account', reverse_delete_rule=CASCADE))
-    HighestBidder = fields.ReferenceField('account', reverse_delete_rule=CASCADE)
-    CurrentBid = fields.FloatField()
-    Status = fields.StringField(max_length=10)
-    Winner = fields.ReferenceField('account', reverse_delete_rule=CASCADE)
+    # Title = fields.StringField(max_length=500)
+    product_id = fields.ReferenceField('product', reverse_delete_rule=CASCADE)
+    total = fields.FloatField()
+    start = fields.DateTimeField(default=datetime.datetime.utcnow)
+    end = fields.DateTimeField()
+    seller_id = fields.ReferenceField('account', reverse_delete_rule=CASCADE)
+    quantity_of_bidder = fields.IntField()
+    bidders = fields.ListField(ReferenceField('account', reverse_delete_rule=CASCADE), blank=True)
+    highestbidder = fields.ReferenceField('account', reverse_delete_rule=CASCADE, blank=True)
+    current_bid = fields.FloatField()
+    status = fields.StringField(max_length=10)
+    winner = fields.ReferenceField('account', reverse_delete_rule=CASCADE, blank=True)
 
 
 

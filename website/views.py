@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import io
 import json
@@ -14,6 +15,7 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 from django.core.files.storage import FileSystemStorage
 from django.forms.models import model_to_dict
+from bson import ObjectId
 from django.core import serializers
 from .forms import *
 from .models import *
@@ -195,8 +197,8 @@ def update(request):
 def home(request):
     cate = models.category.objects()
     t = models.category.objects.filter(category_parent=3).first()
-    print(t.pk)
-    return render(request, 'website/room.html', {'cate': cate})
+    room = models.room.objects()
+    return render(request, 'website/room.html', {'cate': cate, 'room': room})
 
 def product(request):
     l = 3
@@ -256,22 +258,95 @@ def get_category(request):
         return JsonResponse({"message": ls}, status=200)
     return JsonResponse({"message": message}, status=400)
 
+
 def save_product(request):
     if request.is_ajax and request.method == "POST":
         form = ProductForm(3, request.POST, request.FILES)
-
         print(request.POST)
-        print(form.errors)
         if form.is_valid():
             category_id = form.cleaned_data['category']
             c = models.category.objects(id=category_id).first()
             f = form.save(commit=False)
             f.category = c
+            f.startingbid = float(request.POST['startingbid']) * 1000
             f.seller = models.account.objects(pk=request.session['auction_account']['username']).first()
             p_id = f.save()
-            # p = models.product_attributes(product=models.product.objects(id=p_id).first(), attributes=)
+
+            for i in range(0, len(request.POST.getlist("content"))):
+                form_attr = ProductAttributesForm(request.POST)
+                form_attr = form_attr.save(commit=False)
+                form_attr.product_id = models.product.objects(id=ObjectId(p_id.id)).first()
+                form_attr.attributes = models.attributes.objects(id=request.POST.getlist('attributes')[i]).first()
+                form_attr.content = request.POST.getlist("content")[i]
+                form_attr.save()
+
+            p = models.product.objects(id=ObjectId(p_id.id)).first()
+            days = p.duration.split(" day")
+            timestamp = str(datetime.datetime.now())
+            timestamp = timestamp[:len(timestamp) - 7]
+            print(timestamp)
+
+            end = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=int(days[0]))
+
+            room = models.room(product_id=models.product.objects(id=ObjectId(p_id.id)).first(), total=0,
+                               start=datetime.datetime.now(), end=end, seller_id=models.account.objects(pk=request.session['auction_account']['username']).first(),
+                               quantity_of_bidder=0, bidders=[], highestbidder='', current_bid=request.POST['startingbid'], status='opening',
+                               winner=[])
+            room.save()
             return JsonResponse({"message": ''}, status=200)
     return redirect('/home')
 
 
 
+def vd(request):
+    return render(request, 'vd.html')
+
+def room_detail(request, id):
+    i = '628e8bdba4be3496eec93410'
+    room = models.room.objects(id=ObjectId(id)).first()
+    pr_att = models.product_attributes.objects(product_id=ObjectId(i))
+    print(pr_att)
+    for i in pr_att:
+        print(i.content)
+    return render(request, 'website/room_detail.html', {'room': room, 'pr_att': pr_att})
+
+def get_auction_bid(current_price, currency):
+    bid_increment = 0
+    currency = float(currency)
+    if (0.01 * currency) <= current_price or current_price <= (0.99 * currency):
+        bid_increment = 0.05 * currency
+    elif (0.1 * currency) <= current_price or current_price <= (4.99 * currency):
+        bid_increment = 0.025 * currency
+    elif (5.0 * currency) <= current_price or current_price <= (24.99 * currency):
+        bid_increment = 0.5 * currency
+    elif (25.00 * currency) <= current_price or current_price <= (99.99 * currency):
+        bid_increment = 1.0 * currency
+    elif (100.00 * currency) <= current_price or current_price <= (249.99 * currency):
+        bid_increment = 2.50 * currency
+    elif (250.00 * currency) <= current_price or current_price <= (499.99 * currency):
+        bid_increment = 5.00 * currency
+    elif (500.00 * currency) <= current_price or current_price <= (999.99 * currency):
+        bid_increment = 10.00 * currency
+    elif (1000.00 * currency) <= current_price or current_price <= (2499.99 * currency):
+        bid_increment = 25.00 * currency
+    elif (2500.00 * currency) <= current_price or current_price <= (4999.99 * currency):
+        bid_increment = 50.00 * currency
+    elif (5000.00 * currency) <= current_price:
+        bid_increment = 100.00 * currency
+    return bid_increment
+
+
+@csrf_exempt
+def bid(request):
+    if request.is_ajax and request.method == "POST":
+        bids = float(request.POST['bids']) * 1000
+        print(bids)
+        id = request.POST['id']
+        room = models.room.objects(id=ObjectId(id)).first()
+        if bids >= (room.current_bid + get_auction_bid(room.current_bid, 23000)):
+            message = 'Giá tiền hợp lệ!'
+
+        else:
+            message = 'Giá tiền phải từ ' + str(int(room.current_bid + get_auction_bid(room.current_bid, 23000))) + 'đ trở lên!'
+        return JsonResponse({"message": message}, status=200)
+    return JsonResponse({"error": ''}, status=400)

@@ -125,14 +125,13 @@ class ProductImageField(forms.MultiValueField):
     def compress(self, data_list):
         if data_list:
             fs = FileSystemStorage()
+            ls_img = []
             # fs.save(img.name, img)
             for i in range(0, 4):
                name = fs.save(data_list[i].name, data_list[i])
-               # name = name +
-               # url = fs.url(name)
-            return [models.OneImage(image=data_list[0], url=data_list[0].name), models.OneImage(image=data_list[1], url=data_list[1].name),
-                    models.OneImage(image=data_list[2], url=data_list[2].name), models.OneImage(image=data_list[2], url=data_list[3].name)]
-
+               url = fs.url(name)
+               ls_img.append(models.OneImage(image=data_list[i], url=url))
+            return ls_img
 
 class ProductAttributesFieldWidget(forms.MultiWidget):
     widgets = (
