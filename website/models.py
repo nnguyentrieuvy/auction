@@ -50,6 +50,7 @@ class OneImage(EmbeddedDocument):
     url = fields.StringField()
 
 
+
 # class item_specifics(EmbeddedDocument):
 #     attributes = ReferenceField('attributes', reverse_delete_rule=CASCADE)
 #     content = fields.StringField(max_length=500)
@@ -91,7 +92,13 @@ class room(Document):
     current_bid = fields.FloatField()
     status = fields.StringField(max_length=10)
     winner = fields.ReferenceField('account', reverse_delete_rule=CASCADE, blank=True)
+    highestbidder_bid = fields.FloatField()
 
 
+class history_bidding(Document):
+    bidder_id = fields.ReferenceField('account', reverse_delete_rule=CASCADE, blank=True)
+    room_id = fields.ReferenceField('room', reverse_delete_rule=CASCADE, blank=True)
+    bids = fields.FloatField()
+    time = fields.DateTimeField(default=datetime.datetime.utcnow)
 
 

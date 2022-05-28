@@ -183,7 +183,7 @@ class ProductForm(DocumentForm):
                ('open box', 'Đã mở hộp')]
 
     duration = forms.ChoiceField(label='Diễn ra', choices=CHOICES, widget=forms.RadioSelect)
-    startingbid = forms.FloatField(label='Giá khởi điểm', widget=forms.TextInput(attrs={'data-mask': "999999",'title':"Đơn giá 1000VND",
+    startingbid = forms.FloatField(label='Giá khởi điểm', widget=forms.TextInput(attrs={'data-mask': "999999",'title':"Vui lòng nhập giá khởi điểm.",
                                                                                              'value': 11}))
     category = forms.ChoiceField(label='Danh mục', choices=get_values, widget=forms.Select(
         attrs={'class': 'form-control chosen-select'}))

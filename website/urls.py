@@ -17,5 +17,6 @@ urlpatterns = [
     path('vd', views.vd),
     path('room/<str:id>', views.room_detail),
     path('bidder/bid', views.bid),
+    path('get_next_bids', views.get_next_bids),
     # path('verification', views.verification_form),
     ]

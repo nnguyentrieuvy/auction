@@ -31,7 +31,7 @@
                                 </div>
                             </div>
                             <div class="product-buttons">
-                                <button type="button" class="button-default cart-btn">Tham gia</button>
+                                <button type="button" class='btn-room' value="{{ r.pk }}" class="button-default cart-btn">Tham gia</button>
                             </div>
                         </div>
                     </div>
@@ -40,17 +40,6 @@
                 </div>
             </div>
         </div>
-<!--        <div class="footer-copyright-area">-->
-<!--            <div class="container-fluid">-->
-<!--                <div class="row">-->
-<!--                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
-<!--                        <div class="footer-copy-right">-->
-<!--                            <p>Copyright © 2018. All rights reserved. Template by <a href="https://colorlib.com/wp/templates/">Colorlib</a></p>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
 {% endblock %}
 {% block javascript %}
 <!--   <script>-->
@@ -186,7 +175,13 @@ if ( seconds_left >= 0 ) {
 	seconds = pad( parseInt( seconds_left % 60 ) );
 
 	// format countdown string + set tag value
-	var c = "<span> " + hours + ":</span><span>" + minutes + ":</span><span>" + seconds + "</span>";
+	if  (days != 00) {
+	   var c = "<span> " + days +" ngày, "+ hours + ":</span><span>" + minutes + ":</span><span>" + seconds + "</span>";
+	}
+	else
+	{
+	   var c = "<span> " + hours + ":</span><span>" + minutes + ":</span><span>" + seconds + "</span>";
+	}
     timer.innerHTML = "<span><b>End:</b></span>" + c;
 
 
@@ -203,4 +198,10 @@ function pad(n) {
 
 
    </script>
+<script>
+    $('.btn-room').on('click',function someFunction(e){
+       url = '/room/' + $(this).val();
+       location.replace(url);
+    });
+</script>
 {% endblock %}

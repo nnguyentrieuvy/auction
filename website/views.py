@@ -93,13 +93,15 @@ def verify(request, token):
 @csrf_exempt
 def login(request):
     form = AccountForm
-    acc = models.account.objects.filter(pk=request.session['auction_account'].get('username'),
-                                        password=request.session['auction_account'].get('password'),
-                                        role='user').first()
-    if check_permission.permission(request, acc, 'user') == 'user':
-        return redirect("/usr/0/information")
+    try:
+        acc = models.account.objects(pk=request.session['auction_account'].get('username'),
+                                     password=request.session['auction_account'].get('password'),
+                                     role='user').first()
+        if check_permission.permission(request, acc, 'user') == 'user':
+            return redirect("/usr/0/information")
+    except:
+        request.session['auction_account'] = ''
 
-    else:
         if request.is_ajax and request.method == "POST":
             # get the form data
             form = AccountForm(request.POST)
@@ -132,27 +134,32 @@ def login(request):
         return render(request, 'website/login_form.html', {'form': form})
 
 
-def information(request):
-    acc = models.account.objects.filter(pk=request.session['auction_account']['username'],
-                                        password=request.session['auction_account']['password'],
-                                        role='user').first()
-    if check_permission.permission(request, acc, 'user') == 'user':
-        img_url = None
-        form = SignupForm
-        # u = user.to_mongo()
-        u = acc.to_json()
-        if acc.img_url != "":
-            img_url = acc.img_url
 
-        # with open(r'C:\Users\ADMIN\Pictures\Screenshots\agg.png', 'rb') as fd:
-        #     a.image.put(fd, content_type='image/png')
-        # a.save()
-        # photo = a.image.read()
-        # content_type = a.image.content_type
-        return render(request, 'website/information.html', {'form': form,
-                                                            'user': u, 'img_url': img_url,
-                                                            "username": request.session['auction_account']['username']})
-    else:
+def information(request):
+    try:
+        acc = models.account.objects.filter(pk=request.session['auction_account']['username'],
+                                            password=request.session['auction_account']['password'],
+                                            role='user').first()
+        if check_permission.permission(request, acc, 'user') == 'user':
+            img_url = None
+            form = SignupForm
+            # u = user.to_mongo()
+            u = acc.to_json()
+            if acc.img_url != "":
+                img_url = acc.img_url
+
+            # with open(r'C:\Users\ADMIN\Pictures\Screenshots\agg.png', 'rb') as fd:
+            #     a.image.put(fd, content_type='image/png')
+            # a.save()
+            # photo = a.image.read()
+            # content_type = a.image.content_type
+            return render(request, 'website/information.html', {'form': form,
+                                                                'user': u, 'img_url': img_url,
+                                                                "username": request.session['auction_account'][
+                                                                    'username']})
+        else:
+            return redirect("/login")
+    except KeyError:
         return redirect("/login")
 
 
@@ -291,7 +298,7 @@ def save_product(request):
             room = models.room(product_id=models.product.objects(id=ObjectId(p_id.id)).first(), total=0,
                                start=datetime.datetime.now(), end=end, seller_id=models.account.objects(pk=request.session['auction_account']['username']).first(),
                                quantity_of_bidder=0, bidders=[], highestbidder='', current_bid=request.POST['startingbid'], status='opening',
-                               winner=[])
+                               winner=[], highestbidder_bid=0.0)
             room.save()
             return JsonResponse({"message": ''}, status=200)
     return redirect('/home')
@@ -302,13 +309,16 @@ def vd(request):
     return render(request, 'vd.html')
 
 def room_detail(request, id):
-    i = '628e8bdba4be3496eec93410'
     room = models.room.objects(id=ObjectId(id)).first()
-    pr_att = models.product_attributes.objects(product_id=ObjectId(i))
-    print(pr_att)
-    for i in pr_att:
-        print(i.content)
-    return render(request, 'website/room_detail.html', {'room': room, 'pr_att': pr_att})
+    pr_att = models.product_attributes.objects(product_id=ObjectId(room.product_id.id))
+    history_bidding = models.history_bidding.objects(room_id=ObjectId(id), bidder_id=request.session['auction_account']['username'])
+    count = history_bidding.count()
+    try:
+       history_bidding = history_bidding[count-1]
+    except IndexError:
+       history_bidding = ''
+    return render(request, 'website/room_detail.html', {'room': room, 'pr_att': pr_att, 'hs_bidding': history_bidding})
+
 
 def get_auction_bid(current_price, currency):
     bid_increment = 0
@@ -338,15 +348,71 @@ def get_auction_bid(current_price, currency):
 
 @csrf_exempt
 def bid(request):
+    message = 'Lỗi!'
     if request.is_ajax and request.method == "POST":
-        bids = float(request.POST['bids']) * 1000
+        bidder = request.session['auction_account']['username']
+        if bidder is None:
+            return JsonResponse({"message": 'Lỗi!'}, status=200)
+        bids = float(request.POST['bids'])
         print(bids)
         id = request.POST['id']
         room = models.room.objects(id=ObjectId(id)).first()
         if bids >= (room.current_bid + get_auction_bid(room.current_bid, 23000)):
-            message = 'Giá tiền hợp lệ!'
+            if bidder == room.highestbidder.id:
+                if bids > room.highestbidder_bid:
+                   models.room.objects(id=ObjectId(id)).update(highestbidder_bid=bids)
+                   history = models.history_bidding(bidder_id=bidder, room_id=room, bids=bids)
+                   history.save()
+                else:
+                    message = 'Highest bid không thể hạ giá bid tối đa đã đặt!'
+            else:
+                if bids > room.highestbidder_bid:
+                    # change hb and hb_bid
+                    # new bidder becomes hb
+                    models.room.objects(id=ObjectId(id)).update(
+                        current_bid=float(room.highestbidder_bid + get_auction_bid(room.highestbidder_bid, 23000)),
+                        highestbidder=models.account.objects(pk=bidder).first(),
+                        highestbidder_bid=bids)
+                    history = models.history_bidding(bidder_id=bidder, room_id=room, bids=bids)
+                    history.save()
+                    message = 'Cập nhật highest bidder thành công!'
+                elif bids == room.highestbidder_bid:
+                    # new bidder don't becomes hb, current_bid = new bid and hb, but new bidder outbid and hb not
+                    models.room.objects(id=ObjectId(id)).update(
+                        current_bid=float(room.highestbidder_bid))
+                    history = models.history_bidding(bidder_id=bidder, room_id=room, bids=bids)
+                    history.save()
+                    if bidder == room.highestbidder.id:
+                        message = 'Bạn vẫn đang là highest bidder!'
+                    else:
+                        message = 'Bạn đang bị outbid'
+                else:
+                    # new bidder not hb
+                    message = 'Ban dang bi outbid!'
+                    # auto bid for hb
+                    auto_bidding(id, bids, bidder)
 
         else:
             message = 'Giá tiền phải từ ' + str(int(room.current_bid + get_auction_bid(room.current_bid, 23000))) + 'đ trở lên!'
         return JsonResponse({"message": message}, status=200)
+    return JsonResponse({"error": ''}, status=400)
+
+
+
+def auto_bidding(id_room, bid, bidder):
+    new_current_bid = bid + get_auction_bid(bid, 23000)
+    models.room.objects(id=ObjectId(id_room)).update(current_bid=new_current_bid)
+    history = models.history_bidding(bidder_id=bidder, room_id = models.room.objects(id=ObjectId(id_room)).first(), bids=bid)
+    history.save()
+
+
+@csrf_exempt
+def get_next_bids(request):
+    if request.is_ajax and request.method == "POST":
+        print(request.POST)
+        id_room = request.POST['id_room']
+        room = models.room.objects(id=ObjectId(id_room)).first()
+        current_price = room.current_bid
+        result = current_price + get_auction_bid(current_price, 23000)
+        return JsonResponse({"message": result}, status=200)
     return JsonResponse({"error": ''}, status=400)
