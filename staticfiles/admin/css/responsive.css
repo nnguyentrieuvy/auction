@@ -1,6 +1,20 @@
 /* Normal desktop :992px. */
-@media (min-width: 992px) and (max-width: 1169px) {
-	.left-sidebar-pro{
+@media (min-width: 1200px) {
+   .seller {
+      margin: 100px;
+    }
+   .courses-title img{
+		width:  250px;
+		height: 143px;
+	}
+	.header-seller {
+	   left: 0px;
+	   position: fixed;
+	}
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .left-sidebar-pro{
 		display:block;
 	}
 	.mobile-menu-area{
@@ -66,7 +80,8 @@
 		padding: 9px 0px;
 	}
 	.courses-title img{
-		width:100%
+		width:100%;
+		height: 235px;
 	}
 	.professor-stds {
 		margin-right: 5px;
@@ -133,12 +148,21 @@
 	#myTab3.tab-review-design li a, #myTabedu1.tab-review-design li a {
 		padding-right: 35px;
 	}
+
+	.seller {
+      margin: 100px;
+    }
+    .header-seller {
+	   left: 0px;
+	   position: fixed;
+	}
+
 }
 
 	 
 /* Tablet desktop :768px. */
 @media (min-width: 768px) and (max-width: 991px) {
-	.left-sidebar-pro{
+    .left-sidebar-pro{
 		display:none;
 	}
 	.all-content-wrapper {
@@ -224,7 +248,8 @@
 		padding: 10px 0px;
 	}
 	.courses-title img{
-		width:100%
+	    height: 287px;
+		width:100%;
 	}
 	.professor-stds {
 		margin-right: 5px;
@@ -316,10 +341,17 @@
 	#myTab3.tab-review-design li a, #myTabedu1.tab-review-design li a{
 		padding-right: 30px;
 	}
+	.seller {
+      margin: 60px;
+    }
+
 }
 
 /* small mobile :320px. */
 @media (max-width: 767px) {
+    .seller {
+      margin: 30px;
+    }
 	.container {width:300px}
 	.left-sidebar-pro{
 		display:none;
@@ -483,6 +515,7 @@
 	}
 	.courses-title img{
 		width:100%;
+		height: 408px;
 	}
 	.res-mg-b-30{
 		margin-bottom:30px;
@@ -709,6 +742,9 @@
  
 /* Large Mobile :480px. */
 @media only screen and (min-width: 480px) and (max-width: 767px) {
+    .seller {
+      margin: 30px;
+    }
 	.container {width:450px}
 	.fc-toolbar .fc-right {
 		float: right;

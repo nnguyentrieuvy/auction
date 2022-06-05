@@ -1,1 +1,1 @@
-web: gunicorn daugia.wsgi
+web: gunicorn daugia
