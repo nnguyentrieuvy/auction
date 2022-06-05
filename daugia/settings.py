@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-j_v0^ne(i=yzjp8@a5jvyknhc^ju66$gp8-jf%7$%67n^f=o95
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['auctionproject2022.herokuapp.com', '127.0.0.1:8000']
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.forms',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

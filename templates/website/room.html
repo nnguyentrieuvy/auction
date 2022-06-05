@@ -14,15 +14,10 @@
                         <div class="courses-inner res-mg-t-30 dk-res-t-pro-30">
                             <div class="courses-title">
                                 <a href="#"><img src="{{ r.product_id.image.0.url }}" alt=""></a>
-                                <h2>{{ r.product_id.name }}</h2>
+                                <h2>{{ r.product_id.name|truncatechars:40 }}</h2>
                             </div>
-<!--                            <div class="courses-alaltic">-->
-<!--                                <span class="cr-ic-r"><span class="course-icon"><i class="fa fa-clock"></i></span> 1 Year</span>-->
-<!--                                <span class="cr-ic-r"><span class="course-icon"><i class="fa fa-heart"></i></span> 50</span>-->
-<!--                                <span class="cr-ic-r"><span class="course-icon"><i class="fa fa-dollar"></i></span> 500</span>-->
-<!--                            </div>-->
                             <div class="course-des">
-                                <p><b>Curent bid:</b> {{ r.product_id.startingbid}} </p>
+                                <p><b>Curent bid:</b> {{ r.product_id.startingbid|add:"0" }} <u>đ</u> </p>
                                 <p><b>Bidders:</b> {{ r.bidders|length }} </p>
                                 <p class="timer"><span><i class="fa fa-clock"></i></span> </p>
                                 <input type="hidden" class="set-time" value="{{ r.end|date:'Y-m-d H:m:s' }}"/>
@@ -31,7 +26,10 @@
                                 </div>
                             </div>
                             <div class="product-buttons">
-                                <button type="button" class='btn-room' value="{{ r.pk }}" class="button-default cart-btn">Tham gia</button>
+                                <form method="post">
+                                  {% csrf_token %}
+                                  <button type="button" class='btn-room' value="{{ r.pk }}" class="button-default cart-btn">Tham gia</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -119,9 +117,11 @@
     var slides= document.getElementsByClassName('set-time');
     Array.prototype.forEach.call(slides, function(slide, index) {
     var t = slides.item(index).value;
-      var tgianht = new Date().getTime();
-      var end = Date.parse(t);
-      var minutes = (end/60000) - (tgianht/ 60000);
+    var tgianht = new Date().getTime();
+    var end = Date.parse(t);
+    var minutes = (end/60000) - (tgianht/ 60000);
+    var room= document.getElementsByClassName('btn-room')[index];
+    var id_room = room.value;
 
 <!--       var minutes = $( '#set-time' ).val();-->
 
@@ -129,9 +129,22 @@ var target_date = new Date().getTime() + ((minutes * 60 ) * 1000); // set the co
 var time_limit = ((minutes * 60 ) * 1000);
 //set actual timer
 setTimeout(
-  function()
+  function ()
   {
-    alert( 'done' );
+    $.ajax({
+               type: 'POST',
+               url: "/set_status_room",
+               data: {
+                  csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                  id_room: id_room,
+               },
+               success: function (response) {
+<!--                   alert('skskss');-->
+               },
+               error: function (response) {
+                  console.log(response)
+               }
+    });
   }, time_limit );
 
 var days, hours, minutes, seconds; // variables for time units

@@ -15,8 +15,11 @@ urlpatterns = [
     path('seller/detail_product_form', views.detail_product_form),
     path('seller/get_category', views.get_category),
     path('vd', views.vd),
+    path('get_balance', views.get_balance),
+    path('momo', views.thanhtoan_momo),
     path('room/<str:id>', views.room_detail),
     path('bidder/bid', views.bid),
     path('get_next_bids', views.get_next_bids),
+    path('set_status_room', views.set_status_room),
     # path('verification', views.verification_form),
     ]

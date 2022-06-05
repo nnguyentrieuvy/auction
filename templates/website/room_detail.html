@@ -1174,8 +1174,8 @@
                   <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                       <b>Giá hiện tại:</b>
                   </div>
-                  <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12" style="font-size: 20px;">
-                      <b>{{ room.current_bid|add:"0" }}<u>đ</u></b>
+                  <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                      <b style="font-size: 20px;">{{ room.current_bid|add:"0" }}<u>đ</u></b>
                   </div>
                 </div>
                 <div class="row" style="margin-bottom: 20px;">
@@ -1264,8 +1264,9 @@
                   <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                       <b>Số tiền tối đa đã đặt:</b>
                   </div>
-                  <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12" style="font-size: 20px;">
-                      <b>{{ hs_bidding.bids|add:"0" }}<u>đ</u></b>
+                  <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                      <b style="font-size: 20px;">{{ hs_bidding.bids|add:"0" }}<u>đ</u></b>
+                      <p class="hb"></p>
                   </div>
                 </div>
                 {% endif %}
@@ -1489,6 +1490,7 @@ function pad(n) {
                   id_room: $("#id_room").val(),
                },
                success: function (response) {
+                    $(".hb").replaceWith("<p><span style='color:" + response['hb_color'] + ";'>" + response['hb'] + "</span></p>");
                     $(".next-bids").replaceWith("<span style='color: red;'>" + "Giá tiền tối thiểu: "+ response['message'] + "<u>đ</u>.</span>");
                },
                error: function (response) {

@@ -3,6 +3,7 @@ import hashlib
 import io
 import json
 import random
+import os
 
 from PIL import Image
 
@@ -19,6 +20,16 @@ from bson import ObjectId
 from django.core import serializers
 from .forms import *
 from .models import *
+import json
+import urllib.request
+import urllib
+import uuid
+import requests
+import hmac
+import hashlib
+
+from mtnmomo.collection import Collection
+
 
 # Create your views here.
 def register_form(request):
@@ -204,8 +215,10 @@ def update(request):
 def home(request):
     cate = models.category.objects()
     t = models.category.objects.filter(category_parent=3).first()
-    room = models.room.objects()
-    return render(request, 'website/room.html', {'cate': cate, 'room': room})
+    rm = models.room.objects()
+    for r in rm:
+        print(r.status)
+    return render(request, 'website/room.html', {'cate': cate, 'room': rm})
 
 def product(request):
     l = 3
@@ -305,6 +318,273 @@ def save_product(request):
 
 
 
+def get_balance(request):
+    # # parameters send to MoMo get get payUrl
+    # endpoint = "https://test-payment.momo.vn/v2/gateway/api/create"
+    # partnerCode = "MOMO"
+    # accessKey = "F8BBA842ECF85"
+    # secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
+    # orderInfo = "pay with MoMo"
+    # redirectUrl = "http://127.0.0.1:8000/vd"
+    # ipnUrl = "http://127.0.0.1:8000/vd"
+    # amount = "50000"
+    # orderId = str(uuid.uuid4())
+    # requestId = str(uuid.uuid4())
+    # requestType = "captureWallet"
+    # extraData = ""  # pass empty value or Encode base64 JsonString
+    #
+    # # before sign HMAC SHA256 with format: accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl
+    # # &orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId
+    # # &requestType=$requestType
+    # rawSignature = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType
+    #
+    # # puts raw signature
+    # print("--------------------RAW SIGNATURE----------------")
+    # print(rawSignature)
+    # # signature
+    # h = hmac.new(bytes(secretKey, 'ascii'), bytes(rawSignature, 'ascii'), hashlib.sha256)
+    # signature = h.hexdigest()
+    # print("--------------------SIGNATURE----------------")
+    # print(signature)
+    #
+    # # json object send to MoMo endpoint
+    #
+    # data = {
+    #     'partnerCode': partnerCode,
+    #     'partnerName': "Test",
+    #     'storeId': "MomoTestStore",
+    #     'requestId': requestId,
+    #     'amount': amount,
+    #     'orderId': orderId,
+    #     'orderInfo': orderInfo,
+    #     'redirectUrl': redirectUrl,
+    #     'ipnUrl': ipnUrl,
+    #     'lang': "vi",
+    #     'extraData': extraData,
+    #     'requestType': requestType,
+    #     'signature': signature
+    # }
+    # print("--------------------JSON REQUEST----------------\n")
+    # data = json.dumps(data)
+    # print(data)
+    #
+    # clen = len(data)
+    # response = requests.post(endpoint, data=data,
+    #                          headers={'Content-Type': 'application/json', 'Content-Length': str(clen)})
+    #
+    # # f.close()
+    # print("--------------------JSON response----------------\n")
+    # print(response.json())
+    #
+    # print(response.json()['payUrl'])
+
+    config = {
+        "ENVIRONMENT": 'sandbox',
+        "BASE_URL": 'https://sandbox.momodeveloper.mtn.com',
+        "CALLBACK_HOST": "https://webhook.site/6a073522-a7f0-475a-8c1c-cdbf4c527804",  # Mandatory.
+        "COLLECTION_PRIMARY_KEY": '7d88edbf173f4f2a9d28a7fa7d5d09a5',
+        "COLLECTION_USER_ID": 'cffad568-c3c0-4194-ad23-67fb1fb6a15b',
+        "COLLECTION_API_SECRET": 'e197ad12de104901bf531fdbc8503759',
+    }
+
+    client = Collection({
+        "ENVIRONMENT": 'sandbox',
+        "BASE_URL": 'https://sandbox.momodeveloper.mtn.com',
+        "CALLBACK_HOST": "https://webhook.site/6a073522-a7f0-475a-8c1c-cdbf4c527804",  # Mandatory.
+        "COLLECTION_PRIMARY_KEY": '7d88edbf173f4f2a9d28a7fa7d5d09a5',
+        "COLLECTION_USER_ID": '8ccc8c75-6508-41df-acba-310390d39dd0',
+        "COLLECTION_API_SECRET": '7cb763e6f46a4025904e5da8ccf0f38b',
+    })
+    y = client.requestToPay(
+       mobile="256782181656", amount="600", external_id="111", payee_note="dd", payer_message="dd", currency="EUR")
+    t = client.getBalance()
+    print(t)
+
+    # import http.client, urllib.request, urllib.parse, urllib.error, base64
+    # #
+    # headers = {
+    #     # Request headers
+    #     'Authorization': '',
+    #     'X-Target-Environment': 'sandbox',
+    #     'Ocp-Apim-Subscription-Key': '7d88edbf173f4f2a9d28a7fa7d5d09a5',
+    # }
+    #
+    # params = urllib.parse.urlencode({
+    # })
+    #
+    # try:
+    #     conn = http.client.HTTPSConnection('sandbox.momodeveloper.mtn.com')
+    #     conn.request("GET", "/collection/v1_0/account/balance?%s" % params, "{body}", headers)
+    #     response = conn.getresponse()
+    #     data = response.read()
+    #     print('sjkskjskjs')
+    #     print(data)
+    #     conn.close()
+    # except Exception as e:
+    #     print("[Errno {0}] {1}".format(e.errno, e.strerror))
+
+    return HttpResponse('hello')
+
+def thanhtoan_momo(request):
+    # parameters send to MoMo get get payUrl
+    # endpoint = "https://test-payment.momo.vn/v2/gateway/api/create"
+    # partnerCode = "MOMO"
+    # accessKey = "F8BBA842ECF85"
+    # secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
+    # orderInfo = "pay with MoMo"
+    # redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b"
+    # ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b"
+    # amount = "50000"
+    # orderId = str(uuid.uuid4())
+    # requestId = str(uuid.uuid4())
+    # requestType = "captureWallet"
+    # extraData = ""  # pass empty value or Encode base64 JsonString
+
+    endpoint = "https://test-payment.momo.vn/v2/gateway/api/create"
+    endpoint = 'https://test-payment.momo.vn/v2/gateway/api/query'
+
+    # accessKey = "F8BBA842ECF85"
+    # secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
+    # partnerCode = "MOMO"
+    partnerCode = 'MOMOBKUN20180529'
+    accessKey = 'klm05TvNBzhg7h7j'
+    secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa'
+    orderInfo = "Thanh toán qua MoMo"
+    amount = "10000"
+    orderId = str(uuid.uuid4())
+    redirectUrl = "http://127.0.0.1:8000/vd"
+    ipnUrl = 'http://127.0.0.1:8000/vd'
+    extraData = ""
+    requestId = str(uuid.uuid4())
+    requestType = 'payWithATM'
+
+    # before sign HMAC SHA256 with format: accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl
+    # &orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId
+    # &requestType=$requestType
+
+    rawSignature = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType
+    # puts raw signature
+    print("--------------------RAW SIGNATURE----------------")
+    print(rawSignature)
+    # signature
+    h = hmac.new(bytes(secretKey, 'utf-8'), bytes(rawSignature, 'utf-8'), hashlib.sha256)
+    signature = h.hexdigest()
+    print("--------------------SIGNATURE----------------")
+    print(signature)
+
+    # json object send to MoMo endpoint
+
+    data = {
+        'partnerCode': partnerCode,
+        'partnerName': "Test",
+        'storeId': 'MomoTestStore',
+        'requestId': requestId,
+        'amount': amount,
+        'orderId': orderId,
+        'orderInfo': orderInfo,
+        'redirectUrl': redirectUrl,
+        'ipnUrl': ipnUrl,
+        'lang': 'vi',
+        # 'autoCapture': autoCapture,
+        'extraData': extraData,
+        # 'paymentCode': paymentCode,
+        # 'orderGroupId': orderGroupId,
+        'requestType': requestType,
+        'signature': signature
+    }
+
+    print("--------------------JSON REQUEST----------------\n")
+    data = {
+    "partnerCode": "123456",
+    "requestId": "1527246504579",
+    "orderId": "1527246478428",
+    "signature": "13be80957a5ee32107198920fa26aa85a4ca238a29f46e292e8c33dd9186142a",
+    "lang": "en"
+}
+    data = json.dumps(data)
+    print(data)
+
+    clen = len(data)
+    response = requests.post(endpoint, data=data,
+                             headers={'Content-Type': 'application/json', 'Content-Length': str(clen)})
+
+    # f.close()
+    print("--------------------JSON response----------------\n")
+    print(response.json())
+
+
+    # print(response.json()['payUrl'])
+    return HttpResponse('hello')
+
+# def thanhtoan_momo(request):
+#     # parameters send to MoMo get get payUrt
+#     endpoint = "https://test-payment.momo.vn/v2/gateway/api/pos"
+#     accessKey = "F8BBA842ECF85"
+#     secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
+#     orderInfo = "pay with MoMo"
+#     partnerCode = "MOMO"
+#     redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b"
+#     ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b"
+#     amount = "50000"
+#     orderId = str(uuid.uuid4())
+#     requestId = str(uuid.uuid4())
+#     extraData = ""  # pass empty value or Encode base64 JsonString
+#     partnerName = "MoMo Payment"
+#     storeId = "Test Store"
+#     paymentCode = "L/U2a6KeeeBBU/pQAa+g8LilOVzWfvLf/P4XOnAQFmnkrKHICj51qrOTUQ+YrX8/Xs1YD4IOdyiGSkCfV6Je9PeRzl3sO+mDzXNG4enhigU3VGPFh67a37dSwItMJXRDuK64DCqv35YPQtiAOVVZV35/1XBw1rWopmRP03YMNgQWedGLHwmPSkRGoT6XtDSeypJtgbLZ5KIOJsdcynBdFEnHAuIjvo4stADmRL8GqdgsZ0jJCx/oq5JGr8wY+a4g9KolEOSTLBTih48RrGZq3LDBbT4QGBjtW+0W+/95n8W0Aot6kzdG4rWg1NB7EltY6/A8RWAHJav4kWQoFcxgfA=="
+#     orderGroupId = ""
+#     autoCapture = True
+#     lang = "vi"
+#
+#     # before sign HMAC SHA256 with format: accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl
+#     # &orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId
+#     # &requestType=$requestType
+#
+#     rawSignature = "accessKey="+accessKey+"&amount="+amount+"&extraData="+extraData+"&orderId="+orderId+"&orderInfo="+orderInfo+"&partnerCode="+partnerCode+"&paymentCode="+paymentCode+"&requestId="+requestId
+#     # puts raw signature
+#     print("--------------------RAW SIGNATURE----------------")
+#     print(rawSignature)
+#     # signature
+#     h = hmac.new(bytes(secretKey, 'ascii'), bytes(rawSignature, 'utf-8'), hashlib.sha256)
+#     signature = h.hexdigest()
+#     print("--------------------SIGNATURE----------------")
+#     print(signature)
+#
+#     # json object send to MoMo endpoint
+#
+#     data = {
+#         'partnerCode': partnerCode,
+#         'partnerName': partnerName,
+#         'storeId': storeId,
+#         'requestId': requestId,
+#         'amount': amount,
+#         'orderId': orderId,
+#         'orderInfo': orderInfo,
+#         # 'redirectUrl': redirectUrl,
+#         'ipnUrl': ipnUrl,
+#         'lang': lang,
+#         'autoCapture': autoCapture,
+#         'extraData': extraData,
+#         'paymentCode': paymentCode,
+#         'orderGroupId': orderGroupId,
+#         'signature': signature
+#     }
+#     print("--------------------JSON REQUEST----------------\n")
+#     data = json.dumps(data)
+#     print(data)
+#
+#     clen = len(data)
+#     response = requests.post(endpoint, data=data,
+#                              headers={'Content-Type': 'application/json', 'Content-Length': str(clen)})
+#
+#     # f.close()
+#     print("--------------------JSON response----------------\n")
+#     print(response.json())
+#
+#
+#     print(response.json()['payUrl'])
+#     return HttpResponse('hello')
+
 def vd(request):
     return render(request, 'vd.html')
 
@@ -359,12 +639,13 @@ def bid(request):
         room = models.room.objects(id=ObjectId(id)).first()
         if bids >= (room.current_bid + get_auction_bid(room.current_bid, 23000)):
             if bidder == room.highestbidder.id:
-                if bids > room.highestbidder_bid:
+                if bids >= (room.highestbidder_bid + get_auction_bid(room.highestbidder_bid, 23000)):
                    models.room.objects(id=ObjectId(id)).update(highestbidder_bid=bids)
                    history = models.history_bidding(bidder_id=bidder, room_id=room, bids=bids)
                    history.save()
+                   message = 'Bạn đang là highest bid. Bạn đã tăng giá tối đa thành công!'
                 else:
-                    message = 'Highest bid không thể hạ giá bid tối đa đã đặt!'
+                    message = 'Highest bid không thể hạ giá bid tối đa đã đặt hoặc giá tiền không hợp lệ!'
             else:
                 if bids > room.highestbidder_bid:
                     # change hb and hb_bid
@@ -410,9 +691,30 @@ def auto_bidding(id_room, bid, bidder):
 def get_next_bids(request):
     if request.is_ajax and request.method == "POST":
         print(request.POST)
+        bidder = request.session['auction_account']['username']
         id_room = request.POST['id_room']
         room = models.room.objects(id=ObjectId(id_room)).first()
-        current_price = room.current_bid
-        result = current_price + get_auction_bid(current_price, 23000)
-        return JsonResponse({"message": result}, status=200)
+        if bidder == room.highestbidder.id:
+            hb = 'Bạn đang là người đặt giá cao nhất!'
+            color = 'green'
+            result = room.highestbidder_bid + get_auction_bid(room.highestbidder_bid, 23000)
+        else:
+            hb = 'Bạn đang bị trả giá cao hơn!'
+            color = 'red'
+            current_price = room.current_bid
+            result = current_price + get_auction_bid(current_price, 23000)
+        return JsonResponse({"message": result, 'hb': hb, 'hb_color': color}, status=200)
     return JsonResponse({"error": ''}, status=400)
+
+@csrf_exempt
+def set_status_room(request):
+    if request.is_ajax and request.method == "POST":
+        print(request.POST)
+        id_room = request.POST['id_room']
+        print('dnkdldkdldkd')
+        print(id_room)
+        models.room.objects(id=ObjectId(id_room)).update(status='closed')
+        return JsonResponse({"message": 'Cập nhật status thành công!'}, status=200)
+    return JsonResponse({"error": ''}, status=400)
+
+
